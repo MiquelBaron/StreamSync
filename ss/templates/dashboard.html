@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | StreamSync</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 24px;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            margin-bottom: 12px;
+        }
+
+        p {
+            color: #cbd5e1;
+            margin-bottom: 24px;
+        }
+
+        a {
+            display: inline-block;
+            text-decoration: none;
+            background: linear-gradient(90deg, #38bdf8, #6366f1);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Benvingut, {{ user.username }}</h1>
+            <p>Has iniciat sessió correctament a StreamSync.</p>
+            <a href="{% url 'logout' %}">Tancar sessió</a>
+        </div>
+    </div>
+</body>
+</html>
