@@ -1,0 +1,8 @@
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    <button type="submit">Iniciar sessió</button>
+</form>
