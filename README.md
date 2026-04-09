@@ -1,5 +1,37 @@
 # Organització del treball amb Kanban
 
+## Entorn virtual i dependències
+
+Des de l’arrel del repositori, crea un entorn virtual (exemple amb carpeta `.venv`):
+
+```bash
+python -m venv .venv
+```
+
+Activa’l segons el sistema:
+
+* **Windows (PowerShell):** `.venv\Scripts\Activate.ps1`
+
+Instal·la les dependències del projecte:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Preparació de la base de dades (desenvolupament)
+
+Amb l’entorn virtual activat, des de l’arrel del projecte:
+
+```bash
+python manage.py prepare_dev_database
+```
+
+Aquesta comanda fa el següent, en aquest ordre: aplica les **migracions**, crea el grup **Consumidor de contingut**, assegura un **superusuari** `admin` / `admin`, crea l’usuari **consumidor** / **consumidor** amb aquest rol i **omple** la base amb les dades de demostració (pel·lícules, sèries, etc.).
+
+Els comandaments individuals `create_roles`, `create_admin_user` i `populate_demo_data` encara es poden cridar per separat si cal, però el flux habitual és només el d’abans.
+
+---
+
 El projecte es gestiona mitjançant un **tauler Kanban** a GitHub Projects per visualitzar l’estat de les tasques.
 
 ## Columnes del tauler
