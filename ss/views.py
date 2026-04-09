@@ -8,7 +8,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView
 
 from .forms import ContentSearchForm
-from .models import Director
+from .models import Director, Movie, Series
 from .services.search import DatabaseContentSearchService, SearchCriteria
 
 
@@ -42,25 +42,40 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         form = ContentSearchForm(self.request.GET or None)
         results = []
 
-        if self.request.GET:
-            context["has_searched"] = True
-            if form.is_valid():
-                criteria = SearchCriteria(
-                    title=form.cleaned_data["title"],
-                    director_query=form.cleaned_data["director"],
-                    genre_id=form.cleaned_data["genre"].id if form.cleaned_data["genre"] else None,
-                    min_age=form.cleaned_data["age_rating"],
-                )
-                results = DatabaseContentSearchService().search(criteria)
-        else:
-            context["has_searched"] = False
+        has_searched = bool(self.request.GET)
 
+        if has_searched and form.is_valid():
+            criteria = SearchCriteria(
+                title=form.cleaned_data["title"],
+                director_query=form.cleaned_data["director"],
+                genre_id=form.cleaned_data["genre"].id if form.cleaned_data["genre"] else None,
+                min_age=form.cleaned_data["age_rating"],
+            )
+            results = DatabaseContentSearchService().search(criteria)
+
+        featured_movies = (
+            Movie.objects.select_related("director", "genre", "age_rating")
+            .prefetch_related("platforms")
+            .order_by("title")[:6]
+        )
+
+        featured_series = (
+            Series.objects.select_related("director", "genre", "age_rating")
+            .prefetch_related("platforms")
+            .order_by("title")[:6]
+        )
+
+        context["has_searched"] = has_searched
         context["search_form"] = form
         context["results"] = results
+        context["featured_movies"] = featured_movies
+        context["featured_series"] = featured_series
         context["director_suggestions"] = Director.objects.order_by("name").values_list("name", flat=True)
+
         return context
 
 

@@ -124,7 +124,7 @@
             overflow: hidden;
             border-radius: 28px;
             padding: 34px;
-            margin-bottom: 28px;
+            margin-bottom: 32px;
             background:
                 linear-gradient(135deg, rgba(18, 18, 24, 0.92), rgba(10, 10, 14, 0.95)),
                 linear-gradient(90deg, rgba(229, 9, 20, 0.12), rgba(255, 255, 255, 0));
@@ -298,10 +298,7 @@
             background: rgba(255, 255, 255, 0.08);
         }
 
-        .field-search input {
-            min-height: 52px;
-        }
-
+        .field-search input,
         .field-director input {
             min-height: 52px;
         }
@@ -359,6 +356,146 @@
             border: 1px solid rgba(248, 113, 113, 0.35);
         }
 
+        .catalog-section {
+            margin-bottom: 34px;
+        }
+
+        .catalog-row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .catalog-row-title {
+            margin: 0 0 4px;
+            font-size: 1.55rem;
+        }
+
+        .catalog-row-subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .catalog-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .featured-card,
+        .result-card {
+            position: relative;
+            overflow: hidden;
+            min-height: 280px;
+            padding: 22px;
+            border-radius: 22px;
+            background:
+                linear-gradient(180deg, rgba(31, 41, 55, 0.22), rgba(10, 10, 14, 0.86)),
+                linear-gradient(135deg, rgba(229, 9, 20, 0.08), rgba(59, 130, 246, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .featured-card::before,
+        .result-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%),
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.08), transparent 28%);
+            pointer-events: none;
+        }
+
+        .featured-card:hover,
+        .result-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: rgba(229, 9, 20, 0.28);
+            box-shadow: 0 22px 40px rgba(0, 0, 0, 0.42);
+        }
+
+        .content-chip,
+        .featured-chip {
+            display: inline-flex;
+            align-self: flex-start;
+            margin-bottom: 14px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fdba74;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .result-header,
+        .featured-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .result-title,
+        .featured-title {
+            margin: 0;
+            font-size: 1.6rem;
+            line-height: 1.06;
+        }
+
+        .rating-pill,
+        .featured-pill {
+            flex-shrink: 0;
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.07);
+            color: #f8fafc;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .result-submeta,
+        .featured-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .submeta-pill,
+        .featured-meta-pill {
+            padding: 8px 10px;
+            border-radius: 999px;
+            font-size: 0.83rem;
+            color: #dbeafe;
+            background: rgba(59, 130, 246, 0.10);
+            border: 1px solid rgba(96, 165, 250, 0.14);
+        }
+
+        .result-details,
+        .featured-details {
+            display: grid;
+            gap: 10px;
+            color: #d4d4d8;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .result-details strong,
+        .featured-details strong {
+            color: white;
+        }
+
         .results-section {
             margin-top: 10px;
         }
@@ -397,106 +534,6 @@
             gap: 20px;
         }
 
-        .result-card {
-            position: relative;
-            overflow: hidden;
-            min-height: 280px;
-            padding: 22px;
-            border-radius: 22px;
-            background:
-                linear-gradient(180deg, rgba(31, 41, 55, 0.22), rgba(10, 10, 14, 0.86)),
-                linear-gradient(135deg, rgba(229, 9, 20, 0.08), rgba(59, 130, 246, 0.05));
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .result-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%),
-                radial-gradient(circle at top right, rgba(255, 255, 255, 0.08), transparent 28%);
-            pointer-events: none;
-        }
-
-        .result-card:hover {
-            transform: translateY(-4px) scale(1.01);
-            border-color: rgba(229, 9, 20, 0.28);
-            box-shadow: 0 22px 40px rgba(0, 0, 0, 0.42);
-        }
-
-        .content-chip {
-            display: inline-flex;
-            align-self: flex-start;
-            margin-bottom: 14px;
-            padding: 7px 11px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #fdba74;
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .result-title {
-            margin: 0;
-            font-size: 1.6rem;
-            line-height: 1.06;
-        }
-
-        .rating-pill {
-            flex-shrink: 0;
-            padding: 8px 10px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.07);
-            color: #f8fafc;
-            font-size: 0.82rem;
-            font-weight: 700;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .result-submeta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .submeta-pill {
-            padding: 8px 10px;
-            border-radius: 999px;
-            font-size: 0.83rem;
-            color: #dbeafe;
-            background: rgba(59, 130, 246, 0.10);
-            border: 1px solid rgba(96, 165, 250, 0.14);
-        }
-
-        .result-details {
-            display: grid;
-            gap: 10px;
-            color: #d4d4d8;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .result-details strong {
-            color: white;
-        }
-
         .empty-state {
             padding: 26px;
             border-radius: 20px;
@@ -517,6 +554,7 @@
                 grid-template-columns: 1fr;
             }
 
+            .catalog-row,
             .results-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
@@ -538,16 +576,19 @@
 
             .search-primary,
             .search-filters,
+            .catalog-row,
             .results-grid {
                 grid-template-columns: 1fr;
             }
 
-            .section-header {
+            .section-header,
+            .catalog-row-header {
                 flex-direction: column;
                 align-items: flex-start;
             }
 
-            .result-header {
+            .result-header,
+            .featured-header {
                 flex-direction: column;
             }
 
@@ -581,8 +622,7 @@
                     <div class="eyebrow">Explora el catàleg</div>
                     <h1 class="hero-title">Troba què vols veure.</h1>
                     <p class="hero-description">
-                        Cerca per títol, filtra per director, gènere i restricció d’edat, i explora els continguts
-                        d’una manera més propera a una plataforma de streaming moderna.
+                        Cerca per títol, filtra per director, gènere i restricció d’edat, o explora directament els continguts destacats com en una plataforma de streaming.
                     </p>
 
                     <div class="hero-stats">
@@ -665,6 +705,86 @@
             </div>
         </section>
 
+        {% if not has_searched %}
+            <section class="catalog-section">
+                <div class="catalog-row-header">
+                    <div>
+                        <h2 class="catalog-row-title">Pel·lícules destacades</h2>
+                        <p class="catalog-row-subtitle">Una selecció inicial per començar a explorar el catàleg.</p>
+                    </div>
+                </div>
+
+                <div class="catalog-row">
+                    {% for item in featured_movies %}
+                        <article class="featured-card">
+                            <div class="featured-chip">Pel·lícula</div>
+
+                            <div class="featured-header">
+                                <h3 class="featured-title">{{ item.title }}</h3>
+                                <div class="featured-pill">{{ item.age_rating.description }}</div>
+                            </div>
+
+                            <div class="featured-meta">
+                                <span class="featured-meta-pill">{{ item.genre.name }}</span>
+                                <span class="featured-meta-pill">{{ item.age_rating.minimum_age }}+</span>
+                            </div>
+
+                            <div class="featured-details">
+                                <div><strong>Director:</strong> {{ item.director.name }}</div>
+                                <div>
+                                    <strong>Plataformes:</strong>
+                                    {% for platform in item.platforms.all %}
+                                        {% if not forloop.first %}, {% endif %}{{ platform.name }}
+                                    {% empty %}
+                                        -
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="catalog-section">
+                <div class="catalog-row-header">
+                    <div>
+                        <h2 class="catalog-row-title">Sèries destacades</h2>
+                        <p class="catalog-row-subtitle">Continguts disponibles per continuar navegant des de la pàgina principal.</p>
+                    </div>
+                </div>
+
+                <div class="catalog-row">
+                    {% for item in featured_series %}
+                        <article class="featured-card">
+                            <div class="featured-chip">Sèrie</div>
+
+                            <div class="featured-header">
+                                <h3 class="featured-title">{{ item.title }}</h3>
+                                <div class="featured-pill">{{ item.age_rating.description }}</div>
+                            </div>
+
+                            <div class="featured-meta">
+                                <span class="featured-meta-pill">{{ item.genre.name }}</span>
+                                <span class="featured-meta-pill">{{ item.age_rating.minimum_age }}+</span>
+                            </div>
+
+                            <div class="featured-details">
+                                <div><strong>Director:</strong> {{ item.director.name }}</div>
+                                <div>
+                                    <strong>Plataformes:</strong>
+                                    {% for platform in item.platforms.all %}
+                                        {% if not forloop.first %}, {% endif %}{{ platform.name }}
+                                    {% empty %}
+                                        -
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
         <section class="results-section">
             <div class="section-header">
                 <div>
@@ -683,7 +803,7 @@
 
             {% if not has_searched %}
                 <div class="empty-state">
-                    Utilitza el formulari superior per fer una cerca o deixa els camps buits per explorar el catàleg.
+                    Ja tens una selecció destacada a la pàgina principal. Utilitza la cerca si vols filtrar per títol, director, gènere o edat.
                 </div>
             {% elif search_form.errors %}
                 <div class="empty-state">
