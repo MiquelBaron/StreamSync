@@ -50,6 +50,7 @@
         <div class="card">
             <h1>Benvingut, {{ user.username }}</h1>
             <p>Has iniciat sessió correctament a StreamSync.</p>
+            <p>El teu rol és: {{ user.groups.first.name }}</p>
             <a href="{% url 'logout' %}">Tancar sessió</a>
         </div>
     </div>
