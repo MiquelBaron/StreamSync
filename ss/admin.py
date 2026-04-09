@@ -8,7 +8,8 @@ from .models import (
     Language,
     Movie,
     Series,
-    ApiKey
+    ApiKey,
+    ContentConsumer,
 )
 
 admin.site.register(Country)
@@ -20,3 +21,4 @@ admin.site.register(Language)
 admin.site.register(Movie)
 admin.site.register(Series)
 admin.site.register(ApiKey)
+admin.site.register(ContentConsumer)
