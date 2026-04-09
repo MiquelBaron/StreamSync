@@ -9,7 +9,7 @@ from django.views.generic.edit import CreateView
 
 from .forms import ContentSearchForm
 from .models import Director, Movie, Series
-from .services.search import DatabaseContentSearchService, SearchCriteria
+from .search import DatabaseContentSearchService, SearchCriteria
 
 
 class CustomLoginView(LoginView):

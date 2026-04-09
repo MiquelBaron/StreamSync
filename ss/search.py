@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ..models import Movie, Series, AgeRating
+from .models import Movie, Series, AgeRating
 
 
 @dataclass

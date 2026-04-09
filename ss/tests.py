@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from .forms import ContentSearchForm
 from .models import AgeRating, Country, Director, Genre, Language, Movie, Platform, Series
-from .services.search import DatabaseContentSearchService, SearchCriteria
+from .search import DatabaseContentSearchService, SearchCriteria
 
 
 class SearchTests(TestCase):
