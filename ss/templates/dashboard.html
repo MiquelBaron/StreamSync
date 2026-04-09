@@ -7,52 +7,318 @@
     <style>
         body {
             margin: 0;
+            min-height: 100vh;
             font-family: Arial, sans-serif;
-            background: #0f172a;
+            background:
+                radial-gradient(circle at top left, rgba(14, 165, 233, 0.22), transparent 35%),
+                radial-gradient(circle at top right, rgba(249, 115, 22, 0.16), transparent 30%),
+                linear-gradient(180deg, #020617, #0f172a 42%, #111827);
             color: white;
         }
 
         .container {
-            max-width: 900px;
-            margin: 60px auto;
+            max-width: 1100px;
+            margin: 0 auto;
             padding: 24px;
         }
 
+        .hero {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+            margin: 40px 0 24px;
+        }
+
         .card {
-            background: #1e293b;
+            background: rgba(15, 23, 42, 0.82);
             border-radius: 20px;
             padding: 32px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
         }
 
         h1 {
-            margin-bottom: 12px;
+            margin: 0 0 12px;
+            font-size: 2.4rem;
+            line-height: 1.05;
+        }
+
+        h2, h3 {
+            margin-top: 0;
         }
 
         p {
             color: #cbd5e1;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
-        a {
+        .badge {
+            display: inline-block;
+            margin-bottom: 18px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(56, 189, 248, 0.12);
+            color: #7dd3fc;
+            font-size: 0.9rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .logout-link {
             display: inline-block;
             text-decoration: none;
-            background: linear-gradient(90deg, #38bdf8, #6366f1);
+            background: linear-gradient(90deg, #38bdf8, #0ea5e9);
             color: white;
             padding: 12px 18px;
             border-radius: 12px;
             font-weight: bold;
         }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field-full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            color: #e2e8f0;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(30, 41, 59, 0.94);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 24px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 14px 20px;
+            background: linear-gradient(90deg, #f97316, #fb923c);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .clear-link {
+            color: #93c5fd;
+            text-decoration: none;
+        }
+
+        .error-box {
+            margin: 16px 0 0;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(127, 29, 29, 0.55);
+            color: #fecaca;
+            border: 1px solid rgba(248, 113, 113, 0.35);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .results-count {
+            color: #cbd5e1;
+        }
+
+        .results-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .result-card {
+            padding: 22px;
+            border-radius: 18px;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        .result-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .result-type {
+            color: #fdba74;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .result-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            color: #cbd5e1;
+        }
+
+        .empty-state {
+            padding: 24px;
+            border-radius: 18px;
+            background: rgba(30, 41, 59, 0.65);
+            color: #cbd5e1;
+        }
+
+        .hint {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 800px) {
+            .hero,
+            .search-grid,
+            .result-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .results-header,
+            .result-top,
+            .actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="hero">
+            <div class="card">
+                <span class="badge">Explorador de cataleg</span>
+                <h1>Benvingut, {{ user.username }}</h1>
+                <p>Consulta el cataleg local i combina titol, director, genere i restriccio d'edat per trobar continguts.</p>
+                <p>El teu rol es: {{ user.groups.first.name|default:"Sense rol" }}</p>
+                <a class="logout-link" href="{% url 'logout' %}">Tancar sessio</a>
+            </div>
+
+            <div class="card">
+                <h2>Cerca de continguts</h2>
+                <p class="hint">Pots buscar per titol, escriure part del nom del director o combinar diversos filtres.</p>
+                <form method="get">
+                    <div class="search-grid">
+                        <div class="field field-full">
+                            <label for="{{ search_form.title.id_for_label }}">{{ search_form.title.label }}</label>
+                            {{ search_form.title }}
+                        </div>
+
+                        <div class="field">
+                            <label for="{{ search_form.director.id_for_label }}">{{ search_form.director.label }}</label>
+                            <input type="text" name="director" id="{{ search_form.director.id_for_label }}" value="{{ search_form.director.value|default_if_none:'' }}" list="director-suggestions" placeholder="Escriu el nom del director">
+                            <datalist id="director-suggestions">
+                                {% for director_name in director_suggestions %}
+                                    <option value="{{ director_name }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+
+                        <div class="field">
+                            <label for="{{ search_form.genre.id_for_label }}">{{ search_form.genre.label }}</label>
+                            {{ search_form.genre }}
+                        </div>
+
+                        <div class="field field-full">
+                            <label for="{{ search_form.age_rating.id_for_label }}">{{ search_form.age_rating.label }}</label>
+                            {{ search_form.age_rating }}
+                        </div>
+                    </div>
+
+                    {% if search_form.errors %}
+                        <div class="error-box">
+                            {% for field in search_form %}
+                                {% for error in field.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="actions">
+                        <button type="submit" class="btn">Buscar</button>
+                        <a class="clear-link" href="{% url 'dashboard' %}">Netejar filtres</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="card">
-            <h1>Benvingut, {{ user.username }}</h1>
-            <p>Has iniciat sessió correctament a StreamSync.</p>
-            <p>El teu rol és: {{ user.groups.first.name }}</p>
-            <a href="{% url 'logout' %}">Tancar sessió</a>
+            <div class="results-header">
+                <div>
+                    <h2>Resultats</h2>
+                    <p class="hint">Es mostren pellicules i series que compleixen tots els criteris informats.</p>
+                </div>
+                {% if has_searched and not search_form.errors %}
+                    <div class="results-count">{{ results|length }} contingut{{ results|length|pluralize }}</div>
+                {% endif %}
+            </div>
+
+            {% if not has_searched %}
+                <div class="empty-state">
+                    Utilitza el formulari per filtrar o deixa els valors per defecte per veure tot el cataleg.
+                </div>
+            {% elif search_form.errors %}
+                <div class="empty-state">
+                    Revisa els camps del formulari i torna a provar la cerca.
+                </div>
+            {% elif results %}
+                <div class="results-list">
+                    {% for item in results %}
+                        <div class="result-card">
+                            <div class="result-top">
+                                <div>
+                                    <div class="result-type">{{ item.content_type }}</div>
+                                    <h3>{{ item.title }}</h3>
+                                </div>
+                                <div>{{ item.rating_label }}</div>
+                            </div>
+                            <div class="result-meta">
+                                <div><strong>Director:</strong> {{ item.director }}</div>
+                                <div><strong>Genere:</strong> {{ item.genre }}</div>
+                                <div><strong>Edat minima:</strong> {{ item.minimum_age }}+</div>
+                                <div><strong>Plataformes:</strong> {{ item.platforms }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    No s'han trobat continguts amb aquests criteris.
+                </div>
+            {% endif %}
         </div>
     </div>
 </body>
 </html>
+
+
+
+
