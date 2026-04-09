@@ -1,15 +1,7 @@
 from django import forms
 
 from .models import Genre
-
-
-AGE_RATING_CHOICES = [
-    (0, "+0"),
-    (13, "+13"),
-    (18, "+18"),
-    (21, "+21"),
-]
-
+from .models import AgeRating
 
 class ContentSearchForm(forms.Form):
     title = forms.CharField(
@@ -30,13 +22,11 @@ class ContentSearchForm(forms.Form):
         required=False,
         empty_label="Tots els generes",
     )
-    age_rating = forms.TypedChoiceField(
+    age_rating = forms.ModelChoiceField(
         label="Edat minima",
-        choices=AGE_RATING_CHOICES,
+        queryset=AgeRating.objects.order_by("minimum_age"),
         required=False,
-        coerce=int,
-        empty_value=0,
-        initial=0,
+        empty_label="Totes les edats",
     )
 
     def clean(self):
@@ -44,7 +34,5 @@ class ContentSearchForm(forms.Form):
         cleaned_data["title"] = (cleaned_data.get("title") or "").strip()
         cleaned_data["director"] = (cleaned_data.get("director") or "").strip()
 
-        if cleaned_data.get("age_rating") in (None, ""):
-            cleaned_data["age_rating"] = 0
 
         return cleaned_data

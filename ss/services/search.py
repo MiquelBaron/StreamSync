@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ..models import Movie, Series
+from ..models import Movie, Series, AgeRating
 
 
 @dataclass
@@ -8,7 +8,7 @@ class SearchCriteria:
     title: str | None = None
     director_query: str | None = None
     genre_id: int | None = None
-    min_age: int | None = None
+    min_age: AgeRating | None = None
 
 
 class DatabaseContentSearchService:
@@ -37,7 +37,7 @@ class DatabaseContentSearchService:
             queryset = queryset.filter(genre_id=criteria.genre_id)
 
         if criteria.min_age is not None:
-            queryset = queryset.filter(age_rating__minimum_age__gte=criteria.min_age)
+            queryset = queryset.filter(age_rating__minimum_age__gte=criteria.min_age.minimum_age)
 
         return queryset
 
