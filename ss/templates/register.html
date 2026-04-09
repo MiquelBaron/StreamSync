@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | StreamSync</title>
+    <title>Registre | StreamSync</title>
     <style>
         * {
             box-sizing: border-box;
@@ -21,9 +21,9 @@
             color: white;
         }
 
-        .login-card {
+        .register-card {
             width: 100%;
-            max-width: 420px;
+            max-width: 460px;
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(14px);
             border: 1px solid rgba(255,255,255,0.15);
@@ -34,7 +34,7 @@
 
         .brand {
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
         .brand h1 {
@@ -48,7 +48,7 @@
         }
 
         .field {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         .field label {
@@ -69,8 +69,18 @@
             font-size: 1rem;
         }
 
-        .field input::placeholder {
+        .helptext {
+            display: block;
+            margin-top: 6px;
             color: #cbd5e1;
+            font-size: 0.8rem;
+        }
+
+        ul.errorlist {
+            list-style: none;
+            margin-bottom: 10px;
+            color: #fecaca;
+            font-size: 0.9rem;
         }
 
         .btn {
@@ -84,6 +94,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.15s ease, opacity 0.15s ease;
+            margin-top: 8px;
         }
 
         .btn:hover {
@@ -91,65 +102,43 @@
             opacity: 0.95;
         }
 
-        .error-box {
-            background: rgba(239, 68, 68, 0.18);
-            border: 1px solid rgba(239, 68, 68, 0.35);
-            color: #fecaca;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 18px;
-            font-size: 0.95rem;
-        }
-
         .footer-text {
-            margin-top: 18px;
+            margin-top: 16px;
             text-align: center;
             color: #cbd5e1;
             font-size: 0.9rem;
         }
 
-        .demo {
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.07);
-            color: #cbd5e1;
-            font-size: 0.88rem;
-            text-align: center;
+        .footer-text a {
+            color: #93c5fd;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
-    <div class="login-card">
+    <div class="register-card">
         <div class="brand">
             <h1>StreamSync</h1>
-            <p>Inicia sessió per continuar</p>
+            <p>Crea el teu compte</p>
         </div>
-
-        {% if form.errors %}
-            <div class="error-box">
-                Usuari o contrasenya incorrectes.
-            </div>
-        {% endif %}
 
         <form method="post">
             {% csrf_token %}
-
-            <div class="field">
-                <label for="id_username">Usuari</label>
-                <input type="text" name="username" id="id_username" placeholder="Introdueix el teu usuari" required>
-            </div>
-
-            <div class="field">
-                <label for="id_password">Contrasenya</label>
-                <input type="password" name="password" id="id_password" placeholder="Introdueix la teva contrasenya" required>
-            </div>
-
-            <button type="submit" class="btn">Entrar</button>
+            {% for field in form %}
+                <div class="field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.errors }}
+                    {% if field.help_text %}
+                        <span class="helptext">{{ field.help_text|safe }}</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn">Registrar-me</button>
         </form>
 
         <div class="footer-text">
-            No tens compte? <a href="{% url 'register' %}" style="color: #93c5fd; text-decoration: none;">Registra't</a>
+            Ja tens compte? <a href="{% url 'login' %}">Inicia sessio</a>
         </div>
     </div>
 </body>
