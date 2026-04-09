@@ -8,7 +8,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         roles = [
             "Consumidor de contingut",
-            "Creador de contingut",
         ]
 
         for role_name in roles:
