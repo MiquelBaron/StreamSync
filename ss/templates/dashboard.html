@@ -5,79 +5,249 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | StreamSync</title>
     <style>
+        :root {
+            --bg: #0b0b0f;
+            --bg-soft: #111318;
+            --panel: rgba(20, 20, 24, 0.88);
+            --panel-2: rgba(28, 28, 34, 0.92);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #ffffff;
+            --muted: #b3b3b3;
+            --muted-2: #8b8b94;
+            --accent: #e50914;
+            --accent-hover: #f6121d;
+            --accent-soft: rgba(229, 9, 20, 0.14);
+            --blue-soft: rgba(64, 156, 255, 0.14);
+            --radius: 18px;
+            --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: Arial, sans-serif;
+            font-family: Inter, Arial, sans-serif;
+            color: var(--text);
             background:
-                radial-gradient(circle at top left, rgba(14, 165, 233, 0.22), transparent 35%),
-                radial-gradient(circle at top right, rgba(249, 115, 22, 0.16), transparent 30%),
-                linear-gradient(180deg, #020617, #0f172a 42%, #111827);
-            color: white;
+                linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.78)),
+                radial-gradient(circle at top left, rgba(229, 9, 20, 0.14), transparent 30%),
+                radial-gradient(circle at top right, rgba(59, 130, 246, 0.10), transparent 28%),
+                linear-gradient(180deg, #050507 0%, #0a0b10 35%, #111318 100%);
+        }
+
+        a {
+            color: inherit;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1320px;
             margin: 0 auto;
-            padding: 24px;
+            padding: 28px 28px 48px;
         }
 
-        .hero {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 24px;
-            margin: 40px 0 24px;
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
         }
 
-        .card {
-            background: rgba(15, 23, 42, 0.82);
-            border-radius: 20px;
-            padding: 32px;
-            border: 1px solid rgba(148, 163, 184, 0.16);
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+        .brand-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        h1 {
-            margin: 0 0 12px;
-            font-size: 2.4rem;
-            line-height: 1.05;
-        }
-
-        h2, h3 {
-            margin-top: 0;
-        }
-
-        p {
-            color: #cbd5e1;
-            margin-bottom: 16px;
-        }
-
-        .badge {
-            display: inline-block;
-            margin-bottom: 18px;
-            padding: 8px 12px;
-            border-radius: 999px;
-            background: rgba(56, 189, 248, 0.12);
-            color: #7dd3fc;
-            font-size: 0.9rem;
-            letter-spacing: 0.04em;
+        .brand {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            color: var(--accent);
             text-transform: uppercase;
         }
 
-        .logout-link {
-            display: inline-block;
-            text-decoration: none;
-            background: linear-gradient(90deg, #38bdf8, #0ea5e9);
-            color: white;
-            padding: 12px 18px;
-            border-radius: 12px;
-            font-weight: bold;
+        .brand-subtitle {
+            color: var(--muted);
+            font-size: 0.98rem;
         }
 
-        .search-grid {
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 10px 12px 10px 16px;
+            backdrop-filter: blur(8px);
+        }
+
+        .user-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .user-name {
+            font-weight: 700;
+        }
+
+        .user-role {
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
+        .logout-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .logout-link:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .hero-panel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            padding: 34px;
+            margin-bottom: 28px;
+            background:
+                linear-gradient(135deg, rgba(18, 18, 24, 0.92), rgba(10, 10, 14, 0.95)),
+                linear-gradient(90deg, rgba(229, 9, 20, 0.12), rgba(255, 255, 255, 0));
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 12% 18%, rgba(229, 9, 20, 0.22), transparent 20%),
+                radial-gradient(circle at 88% 20%, rgba(59, 130, 246, 0.12), transparent 16%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1.25fr 0.95fr;
+            gap: 30px;
+            align-items: end;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: #ffb4b8;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            margin: 0 0 12px;
+            font-size: clamp(2.2rem, 4vw, 4rem);
+            line-height: 0.96;
+            font-weight: 900;
+            max-width: 9ch;
+        }
+
+        .hero-description {
+            margin: 0;
+            max-width: 58ch;
+            color: #d4d4d8;
+            font-size: 1.02rem;
+            line-height: 1.65;
+        }
+
+        .hero-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 22px;
+        }
+
+        .hero-stat {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            min-width: 130px;
+        }
+
+        .hero-stat-label {
+            display: block;
+            color: var(--muted-2);
+            font-size: 0.82rem;
+            margin-bottom: 5px;
+        }
+
+        .hero-stat-value {
+            font-weight: 700;
+            font-size: 0.98rem;
+        }
+
+        .search-shell {
+            position: relative;
+            z-index: 1;
+            background: rgba(8, 8, 10, 0.74);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 22px;
+            backdrop-filter: blur(8px);
+        }
+
+        .search-shell-title {
+            margin: 0 0 6px;
+            font-size: 1.2rem;
+        }
+
+        .search-shell-subtitle {
+            margin: 0 0 20px;
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .search-primary {
+            display: grid;
+            grid-template-columns: 1.7fr 1.15fr auto;
+            gap: 14px;
+            align-items: end;
+        }
+
+        .search-filters {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 18px;
+            gap: 14px;
         }
 
         .field {
@@ -86,239 +256,472 @@
             gap: 8px;
         }
 
-        .field-full {
-            grid-column: 1 / -1;
-        }
-
-        label {
-            color: #e2e8f0;
-            font-weight: bold;
+        .field label {
+            color: #f1f5f9;
+            font-weight: 700;
+            font-size: 0.92rem;
         }
 
         input,
         select {
             width: 100%;
-            padding: 14px 16px;
-            border-radius: 14px;
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            background: rgba(30, 41, 59, 0.94);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
             color: white;
-            font-size: 1rem;
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-size: 0.98rem;
+            outline: none;
+            transition: 0.2s ease;
         }
 
-        .actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin-top: 24px;
+        select {
+            color-scheme: dark;
+        }
+
+        select option {
+            background: #111318;
+            color: #ffffff;
+        }
+
+        input::placeholder {
+            color: #8b8b94;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: rgba(229, 9, 20, 0.65);
+            box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.14);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .field-search input {
+            min-height: 52px;
+        }
+
+        .field-director input {
+            min-height: 52px;
         }
 
         .btn {
             border: none;
             border-radius: 14px;
-            padding: 14px 20px;
-            background: linear-gradient(90deg, #f97316, #fb923c);
+            min-height: 52px;
+            padding: 0 24px;
+            background: linear-gradient(180deg, var(--accent-hover), var(--accent));
             color: white;
-            font-weight: bold;
+            font-weight: 800;
+            letter-spacing: 0.01em;
             cursor: pointer;
+            transition: 0.2s ease;
+            box-shadow: 0 10px 28px rgba(229, 9, 20, 0.25);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 32px rgba(229, 9, 20, 0.3);
+        }
+
+        .search-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .clear-link {
-            color: #93c5fd;
+            color: #dbeafe;
             text-decoration: none;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .clear-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
         }
 
         .error-box {
-            margin: 16px 0 0;
             padding: 12px 14px;
             border-radius: 14px;
-            background: rgba(127, 29, 29, 0.55);
+            background: rgba(127, 29, 29, 0.42);
             color: #fecaca;
             border: 1px solid rgba(248, 113, 113, 0.35);
         }
 
-        .results-header {
+        .results-section {
+            margin-top: 10px;
+        }
+
+        .section-header {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            gap: 16px;
-            margin-bottom: 20px;
+            align-items: end;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            margin: 0 0 6px;
+            font-size: 1.8rem;
+        }
+
+        .section-description {
+            margin: 0;
+            color: var(--muted);
         }
 
         .results-count {
-            color: #cbd5e1;
+            color: white;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 10px 14px;
+            white-space: nowrap;
         }
 
-        .results-list {
+        .results-grid {
             display: grid;
-            gap: 16px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
         }
 
         .result-card {
+            position: relative;
+            overflow: hidden;
+            min-height: 280px;
             padding: 22px;
-            border-radius: 18px;
-            background: rgba(15, 23, 42, 0.72);
-            border: 1px solid rgba(148, 163, 184, 0.14);
+            border-radius: 22px;
+            background:
+                linear-gradient(180deg, rgba(31, 41, 55, 0.22), rgba(10, 10, 14, 0.86)),
+                linear-gradient(135deg, rgba(229, 9, 20, 0.08), rgba(59, 130, 246, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .result-top {
+        .result-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%),
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.08), transparent 28%);
+            pointer-events: none;
+        }
+
+        .result-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: rgba(229, 9, 20, 0.28);
+            box-shadow: 0 22px 40px rgba(0, 0, 0, 0.42);
+        }
+
+        .content-chip {
+            display: inline-flex;
+            align-self: flex-start;
+            margin-bottom: 14px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fdba74;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .result-header {
             display: flex;
             justify-content: space-between;
+            align-items: start;
             gap: 12px;
             margin-bottom: 12px;
         }
 
-        .result-type {
-            color: #fdba74;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
+        .result-title {
+            margin: 0;
+            font-size: 1.6rem;
+            line-height: 1.06;
         }
 
-        .result-meta {
+        .rating-pill {
+            flex-shrink: 0;
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.07);
+            color: #f8fafc;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .result-submeta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .submeta-pill {
+            padding: 8px 10px;
+            border-radius: 999px;
+            font-size: 0.83rem;
+            color: #dbeafe;
+            background: rgba(59, 130, 246, 0.10);
+            border: 1px solid rgba(96, 165, 250, 0.14);
+        }
+
+        .result-details {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            color: #cbd5e1;
+            gap: 10px;
+            color: #d4d4d8;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .result-details strong {
+            color: white;
         }
 
         .empty-state {
-            padding: 24px;
-            border-radius: 18px;
-            background: rgba(30, 41, 59, 0.65);
-            color: #cbd5e1;
+            padding: 26px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed rgba(255, 255, 255, 0.12);
+            color: var(--muted);
         }
 
-        .hint {
-            color: #94a3b8;
-            font-size: 0.95rem;
+        .footer-note {
+            margin-top: 28px;
+            color: var(--muted-2);
+            font-size: 0.88rem;
+            text-align: center;
         }
 
-        @media (max-width: 800px) {
-            .hero,
-            .search-grid,
-            .result-meta {
+        @media (max-width: 1100px) {
+            .hero-content {
                 grid-template-columns: 1fr;
             }
 
-            .results-header,
-            .result-top,
-            .actions {
+            .results-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 780px) {
+            .container {
+                padding: 18px 16px 36px;
+            }
+
+            .topbar {
                 flex-direction: column;
                 align-items: flex-start;
+            }
+
+            .hero-panel {
+                padding: 24px 18px;
+            }
+
+            .search-primary,
+            .search-filters,
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .result-header {
+                flex-direction: column;
+            }
+
+            .hero-title {
+                max-width: none;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="hero">
-            <div class="card">
-                <span class="badge">Explorador de cataleg</span>
-                <h1>Benvingut, {{ user.username }}</h1>
-                <p>Consulta el cataleg local i combina titol, director, genere i restriccio d'edat per trobar continguts.</p>
-                <p>El teu rol es: {{ user.groups.first.name|default:"Sense rol" }}</p>
-                <a class="logout-link" href="{% url 'logout' %}">Tancar sessio</a>
+
+        <div class="topbar">
+            <div class="brand-block">
+                <div class="brand">StreamSync</div>
+                <div class="brand-subtitle">Catàleg unificat de continguts en estil streaming</div>
             </div>
 
-            <div class="card">
-                <h2>Cerca de continguts</h2>
-                <p class="hint">Pots buscar per titol, escriure part del nom del director o combinar diversos filtres.</p>
-                <form method="get">
-                    <div class="search-grid">
-                        <div class="field field-full">
-                            <label for="{{ search_form.title.id_for_label }}">{{ search_form.title.label }}</label>
-                            {{ search_form.title }}
-                        </div>
-
-                        <div class="field">
-                            <label for="{{ search_form.director.id_for_label }}">{{ search_form.director.label }}</label>
-                            <input type="text" name="director" id="{{ search_form.director.id_for_label }}" value="{{ search_form.director.value|default_if_none:'' }}" list="director-suggestions" placeholder="Escriu el nom del director">
-                            <datalist id="director-suggestions">
-                                {% for director_name in director_suggestions %}
-                                    <option value="{{ director_name }}">
-                                {% endfor %}
-                            </datalist>
-                        </div>
-
-                        <div class="field">
-                            <label for="{{ search_form.genre.id_for_label }}">{{ search_form.genre.label }}</label>
-                            {{ search_form.genre }}
-                        </div>
-
-                        <div class="field field-full">
-                            <label for="{{ search_form.age_rating.id_for_label }}">{{ search_form.age_rating.label }}</label>
-                            {{ search_form.age_rating }}
-                        </div>
-                    </div>
-
-                    {% if search_form.errors %}
-                        <div class="error-box">
-                            {% for field in search_form %}
-                                {% for error in field.errors %}
-                                    <div>{{ error }}</div>
-                                {% endfor %}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-
-                    <div class="actions">
-                        <button type="submit" class="btn">Buscar</button>
-                        <a class="clear-link" href="{% url 'dashboard' %}">Netejar filtres</a>
-                    </div>
-                </form>
+            <div class="user-box">
+                <div class="user-meta">
+                    <div class="user-name">{{ user.username }}</div>
+                    <div class="user-role">Rol: {{ user.groups.first.name|default:"Sense rol" }}</div>
+                </div>
+                <a class="logout-link" href="{% url 'logout' %}">Tancar sessió</a>
             </div>
         </div>
 
-        <div class="card">
-            <div class="results-header">
+        <section class="hero-panel">
+            <div class="hero-content">
                 <div>
-                    <h2>Resultats</h2>
-                    <p class="hint">Es mostren pellicules i series que compleixen tots els criteris informats.</p>
+                    <div class="eyebrow">Explora el catàleg</div>
+                    <h1 class="hero-title">Troba què vols veure.</h1>
+                    <p class="hero-description">
+                        Cerca per títol, filtra per director, gènere i restricció d’edat, i explora els continguts
+                        d’una manera més propera a una plataforma de streaming moderna.
+                    </p>
+
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <span class="hero-stat-label">Cerca flexible</span>
+                            <span class="hero-stat-value">Títol + filtres</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="hero-stat-label">Fonts visibles</span>
+                            <span class="hero-stat-value">Plataformes incloses</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="hero-stat-label">Experiència</span>
+                            <span class="hero-stat-value">Streaming style</span>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="search-shell">
+                    <h2 class="search-shell-title">Cerca de continguts</h2>
+                    <p class="search-shell-subtitle">
+                        Introdueix una cerca lliure i combina filtres per obtenir un catàleg més ajustat.
+                    </p>
+
+                    <form method="get" class="search-form">
+                        <div class="search-primary">
+                            <div class="field field-search">
+                                <label for="{{ search_form.title.id_for_label }}">{{ search_form.title.label }}</label>
+                                {{ search_form.title }}
+                            </div>
+
+                            <div class="field field-director">
+                                <label for="{{ search_form.director.id_for_label }}">{{ search_form.director.label }}</label>
+                                <input
+                                    type="text"
+                                    name="director"
+                                    id="{{ search_form.director.id_for_label }}"
+                                    value="{{ search_form.director.value|default_if_none:'' }}"
+                                    list="director-suggestions"
+                                    placeholder="Escriu el nom del director"
+                                >
+                                <datalist id="director-suggestions">
+                                    {% for director_name in director_suggestions %}
+                                        <option value="{{ director_name }}">
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+
+                            <button type="submit" class="btn">Buscar</button>
+                        </div>
+
+                        <div class="search-filters">
+                            <div class="field">
+                                <label for="{{ search_form.genre.id_for_label }}">{{ search_form.genre.label }}</label>
+                                {{ search_form.genre }}
+                            </div>
+
+                            <div class="field">
+                                <label for="{{ search_form.age_rating.id_for_label }}">{{ search_form.age_rating.label }}</label>
+                                {{ search_form.age_rating }}
+                            </div>
+                        </div>
+
+                        {% if search_form.errors %}
+                            <div class="error-box">
+                                {% for field in search_form %}
+                                    {% for error in field.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="search-footer">
+                            <span class="hint">Combina camps per refinar la cerca o neteja els filtres per començar de nou.</span>
+                            <a class="clear-link" href="{% url 'dashboard' %}">Netejar filtres</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="results-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Resultats</h2>
+                    <p class="section-description">
+                        Pel·lícules i sèries que compleixen els criteris informats.
+                    </p>
+                </div>
+
                 {% if has_searched and not search_form.errors %}
-                    <div class="results-count">{{ results|length }} contingut{{ results|length|pluralize }}</div>
+                    <div class="results-count">
+                        {{ results|length }} contingut{{ results|length|pluralize }}
+                    </div>
                 {% endif %}
             </div>
 
             {% if not has_searched %}
                 <div class="empty-state">
-                    Utilitza el formulari per filtrar o deixa els valors per defecte per veure tot el cataleg.
+                    Utilitza el formulari superior per fer una cerca o deixa els camps buits per explorar el catàleg.
                 </div>
             {% elif search_form.errors %}
                 <div class="empty-state">
-                    Revisa els camps del formulari i torna a provar la cerca.
+                    Hi ha errors al formulari. Revisa els camps i torna-ho a provar.
                 </div>
             {% elif results %}
-                <div class="results-list">
+                <div class="results-grid">
                     {% for item in results %}
-                        <div class="result-card">
-                            <div class="result-top">
-                                <div>
-                                    <div class="result-type">{{ item.content_type }}</div>
-                                    <h3>{{ item.title }}</h3>
-                                </div>
-                                <div>{{ item.rating_label }}</div>
+                        <article class="result-card">
+                            <div class="content-chip">{{ item.content_type }}</div>
+
+                            <div class="result-header">
+                                <h3 class="result-title">{{ item.title }}</h3>
+                                <div class="rating-pill">{{ item.rating_label }}</div>
                             </div>
-                            <div class="result-meta">
+
+                            <div class="result-submeta">
+                                <span class="submeta-pill">{{ item.genre }}</span>
+                                <span class="submeta-pill">{{ item.minimum_age }}+</span>
+                            </div>
+
+                            <div class="result-details">
                                 <div><strong>Director:</strong> {{ item.director }}</div>
-                                <div><strong>Genere:</strong> {{ item.genre }}</div>
-                                <div><strong>Edat minima:</strong> {{ item.minimum_age }}+</div>
                                 <div><strong>Plataformes:</strong> {{ item.platforms }}</div>
                             </div>
-                        </div>
+                        </article>
                     {% endfor %}
                 </div>
             {% else %}
                 <div class="empty-state">
-                    No s'han trobat continguts amb aquests criteris.
+                    No s’han trobat continguts amb aquests criteris. Prova amb una cerca més oberta o combina menys filtres.
                 </div>
             {% endif %}
+        </section>
+
+        <div class="footer-note">
+            StreamSync · Interfície de consulta del catàleg centralitzat
         </div>
     </div>
 </body>
 </html>
-
-
-
-
