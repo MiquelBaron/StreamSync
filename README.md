@@ -26,9 +26,16 @@ Amb l’entorn virtual activat, des de l’arrel del projecte:
 python manage.py prepare_dev_database
 ```
 
-Aquesta comanda fa el següent, en aquest ordre: aplica les **migracions**, crea el grup **Consumidor de contingut**, assegura un **superusuari** `admin` / `admin`, crea l’usuari **consumidor** / **consumidor** amb aquest rol i **omple** la base amb les dades de demostració (pel·lícules, sèries, etc.).
+Aquesta comanda fa el següent, en aquest ordre: aplica les **migracions**, crea el grup **Consumidor de contingut**, assegura un **superusuari** `admin` / `admin` i crea l’usuari **consumidor** / **consumidor** amb aquest rol.
 
-Els comandaments individuals `create_roles`, `create_admin_user` i `populate_demo_data` encara es poden cridar per separat si cal, però el flux habitual és només el d’abans.
+Els comandaments individuals `create_roles` i `create_admin_user` encara es poden cridar per separat si cal, però el flux habitual és només el d’abans.
+
+Després per sincronitzar el catàleg, executar la comanda:
+
+```bash
+python manage.py sync_catalog
+```
+>Obviament s'ha de tenir l'API aixecada per poder sincronitzar.
 
 ---
 

@@ -1,566 +1,76 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>StreamSync · El teu catàleg en streaming</title>
+    <link rel="stylesheet" href="{% static 'ss/css/streamsync-ui.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #141414;
-            font-family: 'Netflix Sans', 'Helvetica Neue', 'Segoe UI', Roboto, Arial, sans-serif;
-            color: #ffffff;
-            overflow-x: hidden;
-        }
-
-        /* Scroll personalitzat (estil Netflix) */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #2c2c2c;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #e50914;
-            border-radius: 8px;
-        }
-
-        /* Navegació superior (navbar) */
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 100%);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            padding: 0.75rem 4%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: baseline;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-        .brand {
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #e50914, #b20710);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .brand-sub {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: #b3b3b3;
-            border-left: 1px solid #333;
-            padding-left: 0.7rem;
-        }
-
-        .user-panel {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: rgba(20,20,20,0.7);
-            padding: 0.4rem 1rem 0.4rem 1.2rem;
-            border-radius: 2rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.2s;
-        }
-        .user-info {
-            text-align: right;
-        }
-        .user-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .user-role {
-            font-size: 0.7rem;
-            color: #b3b3b3;
-        }
-        .logout-btn {
-            background: rgba(255,255,255,0.05);
-            border: none;
-            color: #e5e5e5;
-            padding: 0.4rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-        }
-        .logout-btn:hover {
-            background: #e50914;
-            color: white;
-        }
-
-        /* Hero + cerca principal (estil Netflix gran) */
-        .hero-banner {
-            position: relative;
-            background: radial-gradient(ellipse at 20% 30%, rgba(0,0,0,0.4) 0%, #0a0a0a 90%),
-                        linear-gradient(90deg, rgba(229,9,20,0.2) 0%, transparent 70%);
-            padding: 3rem 4% 3.5rem 4%;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .hero-content {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .hero-title {
-            font-size: 2.6rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-        }
-        .hero-desc {
-            font-size: 1rem;
-            color: #ccc;
-            max-width: 550px;
-            margin-bottom: 2rem;
-        }
-
-        /* === BLOC DE CERCA ESTIL NETFLIX (barra gegant) === */
-        .search-master-container {
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(16px);
-            border-radius: 56px;
-            padding: 0.5rem;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5);
-            margin-bottom: 1rem;
-            transition: all 0.2s;
-        }
-
-        .search-primary-bar {
-            display: flex;
-            align-items: center;
-            background: #0f0f0f;
-            border-radius: 56px;
-            padding: 0.2rem 0.2rem 0.2rem 1.5rem;
-            gap: 0.5rem;
-        }
-
-        .search-icon {
-            color: #e50914;
-            font-size: 1.5rem;
-            font-weight: 500;
-        }
-
-        .giant-search-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 1.25rem;
-            padding: 1rem 0;
-            outline: none;
-            font-weight: 500;
-        }
-        .giant-search-input::placeholder {
-            color: #aaa;
-            font-weight: 400;
-            font-size: 1.1rem;
-        }
-
-        .search-submit-btn {
-            background: #e50914;
-            border: none;
-            color: white;
-            font-weight: 700;
-            padding: 0.7rem 1.8rem;
-            border-radius: 40px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 4px 12px rgba(229,9,20,0.3);
-        }
-        .search-submit-btn:hover {
-            background: #f6121d;
-            transform: scale(1.02);
-        }
-
-        /* Filtres en rectangulos individuales (estilo netflix filters) */
-        .filters-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1rem;
-            padding: 0.5rem 0.2rem;
-        }
-
-        .filter-card {
-            background: rgba(20,20,30,0.75);
-            backdrop-filter: blur(12px);
-            border-radius: 48px;
-            border: 1px solid rgba(255,255,255,0.15);
-            padding: 0.4rem 1.2rem 0.4rem 1.2rem;
-            min-width: 160px;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            transition: all 0.2s;
-        }
-        .filter-card:hover {
-            border-color: #e50914;
-            background: rgba(30,30,40,0.9);
-        }
-
-        .filter-card label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: #e0e0e0;
-            letter-spacing: 0.5px;
-        }
-
-        .filter-card select,
-        .filter-card .director-input-wrapper input {
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding: 0.5rem 0;
-            outline: none;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        /* Tom Select theme ajustado al dashboard */
-        .filter-card .ts-wrapper {
-            width: 100%;
-        }
-        .filter-card .ts-control,
-        .filter-card .ts-wrapper.single .ts-control,
-        .filter-card .ts-wrapper.single.input-active .ts-control,
-        .filter-card .ts-wrapper.single.focus .ts-control {
-            background: transparent;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            min-height: auto;
-            padding: 0.5rem 0;
-        }
-        .filter-card .ts-control > input {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            color: white !important;
-            width: 1px !important;
-            min-width: 1px !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            opacity: 0.9;
-            cursor: text !important;
-        }
-        .filter-card .ts-control > input::placeholder {
-            color: #bdbdbd;
-        }
-        .filter-card .ts-control .item {
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .filter-card .ts-wrapper.focus .ts-control,
-        .filter-card .ts-wrapper.dropdown-active .ts-control {
-            outline: none;
-            box-shadow: none;
-        }
-        .filter-card .ts-dropdown {
-            background: #1c1c1c;
-            border: 1px solid rgba(255,255,255,0.15);
-            color: white;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-top: 0.3rem;
-        }
-        .filter-card .ts-dropdown .option,
-        .filter-card .ts-dropdown .optgroup-header {
-            color: #f1f1f1;
-            padding: 0.6rem 0.8rem;
-        }
-        .filter-card .ts-dropdown .option.active {
-            background: rgba(229,9,20,0.25);
-            color: white;
-        }
-        .filter-card .ts-dropdown .create {
-            color: #ddd;
-        }
-
-        .filter-card select option {
-            background: #1c1c1c;
-            color: white;
-        }
-
-        .director-input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            width: 100%;
-        }
-
-        .clear-filters-link {
-            background: rgba(255,255,255,0.08);
-            border-radius: 40px;
-            padding: 0.5rem 1.2rem;
-            font-size: 0.8rem;
-            font-weight: 500;
-            text-decoration: none;
-            color: #ddd;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .clear-filters-link:hover {
-            background: #e50914;
-            color: white;
-        }
-
-        .error-badge {
-            background: rgba(229,9,20,0.2);
-            border-left: 4px solid #e50914;
-            padding: 0.7rem 1rem;
-            border-radius: 14px;
-            margin-top: 1rem;
-            font-size: 0.85rem;
-        }
-
-        /* Seccions de contingut (estil netflix rows) */
-        .content-section {
-            padding: 2rem 4% 1rem 4%;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            margin-bottom: 1.2rem;
-        }
-        .section-header h2 {
-            font-size: 1.6rem;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-        }
-        .section-sub {
-            color: #aaa;
-            font-size: 0.85rem;
-        }
-
-        .movies-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .netflix-card {
-            background: linear-gradient(145deg, #1f1f2a, #141414);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: transform 0.25s ease, box-shadow 0.2s;
-            border: 1px solid rgba(255,255,255,0.08);
-            cursor: default;
-            display: flex;
-            flex-direction: column;
-        }
-        .netflix-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 20px 30px -12px black;
-            border-color: rgba(229,9,20,0.4);
-        }
-
-        .card-badge {
-            display: inline-block;
-            background: #e50914;
-            font-size: 0.7rem;
-            font-weight: bold;
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            align-self: flex-start;
-            margin: 1rem 1rem 0 1rem;
-            text-transform: uppercase;
-        }
-
-        .card-content {
-            padding: 1rem 1.2rem 1.5rem;
-        }
-
-        .card-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 0.3rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .rating-age {
-            background: rgba(0,0,0,0.6);
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
-        .meta-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin: 0.6rem 0 0.8rem;
-        }
-        .meta-pill {
-            background: rgba(255,255,255,0.08);
-            border-radius: 20px;
-            padding: 0.2rem 0.8rem;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-
-        .detail-line {
-            font-size: 0.85rem;
-            color: #ccc;
-            margin-top: 0.5rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        .detail-line strong {
-            color: white;
-            font-weight: 600;
-        }
-
-        .empty-message {
-            background: rgba(255,255,255,0.03);
-            border-radius: 24px;
-            padding: 2rem;
-            text-align: center;
-            border: 1px dashed #444;
-            color: #aaa;
-        }
-
-        footer {
-            text-align: center;
-            padding: 2rem;
-            font-size: 0.75rem;
-            color: #6c6c6c;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            margin-top: 2rem;
-        }
-
-        @media (max-width: 750px) {
-            .navbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .search-primary-bar {
-                flex-wrap: wrap;
-                padding: 0.5rem;
-            }
-            .giant-search-input {
-                width: 100%;
-                padding: 0.8rem;
-            }
-            .filters-grid {
-                flex-direction: column;
-            }
-            .filter-card {
-                width: 100%;
-            }
-            .hero-title {
-                font-size: 1.8rem;
-            }
-        }
-    </style>
 </head>
-<body>
+<body class="nf-body">
 
-<div class="navbar">
-    <div class="logo-area">
-        <div class="brand">STREAMSYNC</div>
-        <div class="brand-sub">catàleg unificat</div>
+<header class="nf-header">
+    <div class="nf-header__left">
+        <a class="nf-logo" href="{% url 'dashboard' %}">STREAMSYNC</a>
+        <nav class="nf-nav" aria-label="Principal">
+            <a class="nf-nav__link" href="{% url 'dashboard' %}">Inici</a>
+            <a class="nf-nav__link" href="#cerca">Cerca</a>
+            <a class="nf-nav__link" href="#resultats">Resultats</a>
+        </nav>
     </div>
-    <div class="user-panel">
-        <div class="user-info">
-            <div class="user-name">{{ user.username }}</div>
-            <div class="user-role">Rol: {{ user.groups.first.name|default:"Espectador" }}</div>
+    <div class="nf-header__right">
+        <div class="nf-profile">
+            <div class="nf-profile__meta">
+                <div class="nf-profile__name">{{ user.username }}</div>
+                <div class="nf-profile__role">{{ user.groups.first.name|default:"Espectador" }}</div>
+            </div>
+            <a class="nf-btn-signout" href="{% url 'logout' %}">Tancar sessió</a>
         </div>
-        <a class="logout-btn" href="{% url 'logout' %}">Tancar sessió</a>
     </div>
-</div>
+</header>
 
-<div class="hero-banner">
-    <div class="hero-content">
-        <h1 class="hero-title">Milers de pel·lícules i sèries</h1>
-        <p class="hero-desc">Descobreix el teu proper favorit. Cerca per títol, director, gènere o edat.</p>
+<div class="nf-hero" id="cerca">
+    <div class="nf-hero__inner">
+        <h1 class="nf-hero__title">Milers de pel·lícules i sèries</h1>
+        <p class="nf-hero__lead">Descobreix el teu proper favorit. Cerca per títol, director, gènere o edat.</p>
 
-        <!-- MEGA BARRA DE CERCA -->
-        <form method="get" action="" style="width: 100%;">
+        <form method="get" action="" style="width:100%;">
             <div class="search-master-container">
                 <div class="search-primary-bar">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" name="title" class="giant-search-input" 
-                           placeholder="Títol, pel·lícula, sèrie..." 
-                           value="{{ search_form.title.value|default_if_none:'' }}" 
+                    <span class="search-icon" aria-hidden="true">🔍</span>
+                    <input type="text" name="title" class="giant-search-input"
+                           placeholder="Títol, pel·lícula, sèrie…"
+                           value="{{ search_form.title.value|default_if_none:'' }}"
                            autocomplete="off">
                     <button type="submit" class="search-submit-btn">Cercar</button>
                 </div>
 
-                <!-- FILTRES EN RECTANGLES INDEPENDENTS -->
                 <div class="filters-grid">
-                    <!-- Filtre Gènere (desplegable) -->
                     <div class="filter-card">
-                        <label>🎭 GÈNERE</label>
-                        <select id="genre-select" name="genre" placeholder="Selecciona gènere">
+                        <label for="genre-select">Gènere</label>
+                        <select id="genre-select" name="genre">
                             <option value="">Tots</option>
                             {% for genre in search_form.fields.genre.queryset %}
-                                <option value="{{ genre.id }}" {% if search_form.genre.value|stringformat:"s" == genre.id|stringformat:"s" %}selected{% endif %}>
-                                    {{ genre.name }}
-                                </option>
+                                <option value="{{ genre.id }}" {% if search_form.genre.value|stringformat:"s" == genre.id|stringformat:"s" %}selected{% endif %}>{{ genre.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
-
-                    <!-- Filtre Edat (desplegable) -->
                     <div class="filter-card">
-                        <label>🔞 EDAT</label>
-                        <select id="age-rating-select" name="age_rating" placeholder="Selecciona edat">
+                        <label for="age-rating-select">Edat</label>
+                        <select id="age-rating-select" name="age_rating">
                             <option value="">Qualsevol edat</option>
                             {% for age in search_form.fields.age_rating.queryset %}
-                                <option value="{{ age.id }}" {% if search_form.age_rating.value|stringformat:"s" == age.id|stringformat:"s" %}selected{% endif %}>
-                                    {{ age.description }} ({{ age.minimum_age }}+)
-                                </option>
+                                <option value="{{ age.id }}" {% if search_form.age_rating.value|stringformat:"s" == age.id|stringformat:"s" %}selected{% endif %}>{{ age.description }} ({{ age.minimum_age }}+)</option>
                             {% endfor %}
                         </select>
                     </div>
-
-                    <!-- Filtre Director amb datalist (camp de text + suggeriments) -->
                     <div class="filter-card">
-                        <label>🎬 DIRECTOR</label>
+                        <label for="director-input">Director</label>
                         <div class="director-input-wrapper">
-                            <input type="text" name="director" id="director-input" 
-                                   value="{{ search_form.director.value|default_if_none:'' }}" 
-                                   list="director-list" placeholder="Nom del director"
-                                   style="width:100%">
+                            <input type="text" name="director" id="director-input"
+                                   value="{{ search_form.director.value|default_if_none:'' }}"
+                                   list="director-list" placeholder="Nom del director">
                             <datalist id="director-list">
                                 {% for director_name in director_suggestions %}
                                     <option value="{{ director_name }}">
@@ -568,11 +78,8 @@
                             </datalist>
                         </div>
                     </div>
-
                     <div>
-                        <a href="{% url 'dashboard' %}" class="clear-filters-link">
-                            ✖ Netejar filtres
-                        </a>
+                        <a href="{% url 'dashboard' %}" class="clear-filters-link">✖ Netejar filtres</a>
                     </div>
                 </div>
             </div>
@@ -590,82 +97,74 @@
     </div>
 </div>
 
-<!-- SECCIÓ DESTACATS (quan no s'ha fet cerca) ESTIL NETFLIX -->
 {% if not has_searched %}
-    <div class="content-section">
-        <div class="section-header">
-            <div>
-                <h2>⭐ Tendències ara</h2>
-                <div class="section-sub">Pel·lícules destacades per a tu</div>
-            </div>
-        </div>
-        <div class="movies-grid">
-            {% for item in featured_movies %}
-                <div class="netflix-card">
-                    <div class="card-badge">🎬 Pel·lícula</div>
-                    <div class="card-content">
-                        <div class="card-title">
-                            {{ item.title }}
-                            <span class="rating-age">{{ item.age_rating.minimum_age }}+</span>
-                        </div>
-                        <div class="meta-row">
-                            <span class="meta-pill">{{ item.genre.name }}</span>
-                            <span class="meta-pill">{{ item.age_rating.description }}</span>
-                        </div>
-                        <div class="detail-line"><strong>Director:</strong> {{ item.director.name }}</div>
-                        <div class="detail-line">
-                            <strong>Plataformes:</strong> 
-                            {% for platform in item.platforms.all %}
-                                {{ platform.name }}{% if not forloop.last %}, {% endif %}
-                            {% empty %}—
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+<section class="nf-row" aria-labelledby="row-movies">
+    <div class="nf-row__head">
+        <div>
+            <h2 class="nf-row__title" id="row-movies">Tendències ara</h2>
+            <p class="nf-row__sub">Pel·lícules destacades</p>
         </div>
     </div>
+    <div class="nf-row__track">
+        {% for item in featured_movies %}
+            <article class="nf-poster">
+                <div class="nf-poster__thumb" aria-hidden="true">🎬</div>
+                <div class="nf-poster__body">
+                    <span class="nf-poster__badge">Pel·lícula</span>
+                    <div class="nf-poster__title">
+                        <span>{{ item.title }}</span>
+                        <span class="nf-poster__age">{{ item.age_rating.minimum_age }}+</span>
+                    </div>
+                    <div class="nf-poster__meta">
+                        <span class="nf-poster__pill">{{ item.genre.name }}</span>
+                        <span class="nf-poster__pill">{{ item.age_rating.description }}</span>
+                    </div>
+                    <p class="nf-poster__detail"><strong>Director:</strong> {{ item.director.name }}</p>
+                    <p class="nf-poster__detail"><strong>Plataformes:</strong>
+                        {% for platform in item.platforms.all %}{{ platform.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
+                    </p>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
 
-    <div class="content-section">
-        <div class="section-header">
-            <div>
-                <h2>📺 Sèries que t’enganxaran</h2>
-                <div class="section-sub">Maratoneja sense límits</div>
-            </div>
-        </div>
-        <div class="movies-grid">
-            {% for item in featured_series %}
-                <div class="netflix-card">
-                    <div class="card-badge">📺 Sèrie</div>
-                    <div class="card-content">
-                        <div class="card-title">
-                            {{ item.title }}
-                            <span class="rating-age">{{ item.age_rating.minimum_age }}+</span>
-                        </div>
-                        <div class="meta-row">
-                            <span class="meta-pill">{{ item.genre.name }}</span>
-                            <span class="meta-pill">{{ item.age_rating.description }}</span>
-                        </div>
-                        <div class="detail-line"><strong>Director:</strong> {{ item.director.name }}</div>
-                        <div class="detail-line">
-                            <strong>Plataformes:</strong> 
-                            {% for platform in item.platforms.all %}
-                                {{ platform.name }}{% if not forloop.last %}, {% endif %}
-                            {% empty %}—
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+<section class="nf-row" aria-labelledby="row-series">
+    <div class="nf-row__head">
+        <div>
+            <h2 class="nf-row__title" id="row-series">Sèries que t’enganxaran</h2>
+            <p class="nf-row__sub">Maratoneja sense límits</p>
         </div>
     </div>
+    <div class="nf-row__track">
+        {% for item in featured_series %}
+            <article class="nf-poster">
+                <div class="nf-poster__thumb" aria-hidden="true">📺</div>
+                <div class="nf-poster__body">
+                    <span class="nf-poster__badge">Sèrie</span>
+                    <div class="nf-poster__title">
+                        <span>{{ item.title }}</span>
+                        <span class="nf-poster__age">{{ item.age_rating.minimum_age }}+</span>
+                    </div>
+                    <div class="nf-poster__meta">
+                        <span class="nf-poster__pill">{{ item.genre.name }}</span>
+                        <span class="nf-poster__pill">{{ item.age_rating.description }}</span>
+                    </div>
+                    <p class="nf-poster__detail"><strong>Director:</strong> {{ item.director.name }}</p>
+                    <p class="nf-poster__detail"><strong>Plataformes:</strong>
+                        {% for platform in item.platforms.all %}{{ platform.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
+                    </p>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
 {% endif %}
 
-<!-- SECCIÓ RESULTATS DE CERCA (amb el mateix estil professional) -->
-<div class="content-section">
+<div class="content-section" id="resultats">
     <div class="section-header">
         <div>
-            <h2>🔍 Resultats de la cerca</h2>
+            <h2>Resultats de la cerca</h2>
             <div class="section-sub">
                 {% if has_searched and not search_form.errors %}
                     Mostrant {{ results|length }} contingut{{ results|length|pluralize }}
@@ -675,18 +174,16 @@
             </div>
         </div>
         {% if has_searched and not search_form.errors and results %}
-            <div style="background:#e50914; padding:0.2rem 1rem; border-radius:40px; font-weight:bold;">{{ results|length }} títols</div>
+            <div style="background:var(--nf-red);padding:0.25rem 1rem;border-radius:4px;font-weight:700;font-size:0.85rem;">{{ results|length }} títols</div>
         {% endif %}
     </div>
 
     {% if not has_searched %}
         <div class="empty-message">
-            🎬 Explora el catàleg destacat o utilitza la cerca intel·ligent. Prova a escriure un títol o triar un gènere.
+            Explora el catàleg destacat o utilitza la cerca. Escriu un títol o tria un gènere.
         </div>
     {% elif search_form.errors %}
-        <div class="empty-message">
-            ⚠️ Revisa els camps del formulari i torna a provar.
-        </div>
+        <div class="empty-message">Revisa els camps del formulari i torna a provar.</div>
     {% elif results %}
         <div class="movies-grid">
             {% for item in results %}
@@ -708,14 +205,12 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="empty-message">
-            😞 No s'han trobat continguts amb aquests criteris. Amplia la cerca o prova un altre director/gènere.
-        </div>
+        <div class="empty-message">No s’han trobat continguts amb aquests criteris.</div>
     {% endif %}
 </div>
 
-<footer>
-    StreamSync · Experiència de navegació inspirada en Netflix · Catàleg unificat de continguts en streaming
+<footer class="nf-footer">
+    StreamSync · Catàleg unificat
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
@@ -727,7 +222,6 @@
         sortField: { field: "text", direction: "asc" },
         placeholder: "Tots",
     });
-
     new TomSelect("#age-rating-select", {
         create: false,
         allowEmptyOption: true,
@@ -736,6 +230,5 @@
         placeholder: "Qualsevol edat",
     });
 </script>
-
 </body>
 </html>

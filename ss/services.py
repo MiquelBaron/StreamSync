@@ -41,6 +41,11 @@ def _get_all(endpoint):
     return results
 
 
+def _get_all_by_platform(endpoint):
+    """Retorna {nom_plataforma: [...]} per cada plataforma."""
+    return {platform: _get(platform, endpoint) for platform in PLATFORMS}
+
+
 # ── Per plataforma ─────────────────────────────────────────────────────────────
 
 def get_movies(platform):
@@ -59,13 +64,43 @@ def get_age_ratings(platform):
     return _get(platform, "age-ratings")
 
 
+def get_countries(platform):
+    return _get(platform, "countries")
+
+
+def get_languages(platform):
+    return _get(platform, "languages")
+
+
+def get_country_row(platform, pk):
+    """Un país per id (per resoldre FKs si la llista completa no està disponible)."""
+    for path in (f"countries/{pk}", f"country/{pk}"):
+        data = _get(platform, path)
+        if isinstance(data, dict) and data.get("id") is not None:
+            return data
+        if isinstance(data, list) and data and isinstance(data[0], dict):
+            return data[0]
+    return None
+
+
+def get_language_row(platform, pk):
+    """Un idioma per id."""
+    for path in (f"languages/{pk}", f"language/{pk}"):
+        data = _get(platform, path)
+        if isinstance(data, dict) and data.get("id") is not None:
+            return data
+        if isinstance(data, list) and data and isinstance(data[0], dict):
+            return data[0]
+    return None
+
+
 # ── Les 3 BD combinades ────────────────────────────────────────────────────────
 
 def get_all_movies():
-    return _get_all("movies")
+    return _get_all_by_platform("movies")
 
 def get_all_series():
-    return _get_all("series")
+    return _get_all_by_platform("series")
 
 def get_all_directors():
     return _get_all("directors")

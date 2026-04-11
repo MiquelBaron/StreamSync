@@ -9,7 +9,6 @@ from ss.management.dev_database import (
     run_create_admin_user,
     run_create_consumer_user,
     run_create_roles,
-    run_populate_demo_data,
 )
 
 
@@ -30,8 +29,5 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.MIGRATE_HEADING("Ensuring consumidor (Consumidor de contingut)..."))
         run_create_consumer_user(self.stdout.write, self.style)
-
-        self.stdout.write(self.style.MIGRATE_HEADING("Populating demo data..."))
-        run_populate_demo_data(self.stdout.write, self.style)
 
         self.stdout.write(self.style.SUCCESS("Dev database preparation finished."))
