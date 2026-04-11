@@ -28,7 +28,7 @@
         <div class="nf-profile">
             <div class="nf-profile__meta">
                 <div class="nf-profile__name">{{ user.username }}</div>
-                <div class="nf-profile__role">{{ user.groups.first.name|default:"Espectador" }}</div>
+                <div class="nf-profile__role">{{ user.groups.first.name}}</div>
             </div>
             <a class="nf-btn-signout" href="{% url 'logout' %}">Tancar sessió</a>
         </div>
