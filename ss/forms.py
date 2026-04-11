@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Genre
+from .models import Genre, ContentConsumer
 from .models import AgeRating
 
 class ContentSearchForm(forms.Form):
@@ -36,3 +36,23 @@ class ContentSearchForm(forms.Form):
 
 
         return cleaned_data
+
+
+
+class PreferencesForm(forms.ModelForm):
+    preferred_genres = forms.ModelMultipleChoiceField(
+        queryset=Genre.objects.all(),
+        widget=forms.CheckboxSelectMultiple, # Pots usar SelectMultiple si prefereixes
+        required=False,
+        label="Selecciona els teus gèneres preferits (màxim 3)"
+    )
+
+    class Meta:
+        model = ContentConsumer
+        fields = ['preferred_genres']
+
+    def clean_preferred_genres(self):
+        genres = self.cleaned_data.get('preferred_genres')
+        if genres and genres.count() > 3:
+            raise forms.ValidationError("Només pots seleccionar un màxim de 3 gèneres.")
+        return genres

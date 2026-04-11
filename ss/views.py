@@ -5,10 +5,10 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 
-from .forms import ContentSearchForm
-from .models import Director, Movie, Series
+from .forms import *
+from .models import *
 from .search import DatabaseContentSearchService, SearchCriteria
 
 
@@ -79,5 +79,17 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class PreferencesView(LoginRequiredMixin, UpdateView):
+    model = ContentConsumer
+    form_class = PreferencesForm
+    template_name = "preferences.html"
+    success_url = reverse_lazy("dashboard")
+
+    def get_object(self, queryset=None):
+        return self.request.user.content_consumer_profile
+
 def home_redirect(request):
     return redirect("/dashboard/")
+
+
+

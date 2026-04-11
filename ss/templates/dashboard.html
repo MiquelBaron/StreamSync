@@ -20,6 +20,11 @@
         </nav>
     </div>
     <div class="nf-header__right">
+        {% if user.groups.first.name == "Consumidor de contingut" %}
+                <a href="{% url 'preferences' %}" class="nf-nav__link">
+                    Preferències
+                </a>
+        {% endif %}
         <div class="nf-profile">
             <div class="nf-profile__meta">
                 <div class="nf-profile__name">{{ user.username }}</div>
