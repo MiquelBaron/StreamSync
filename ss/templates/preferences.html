@@ -32,7 +32,14 @@
             <form method="post">
                 {% csrf_token %}
 
-                {{ form.preferred_genres }}
+                <div class="genre-grid">
+                    {% for checkbox in form.preferred_genres %}
+                        <label class="genre-card">
+                            {{ checkbox.tag }}
+                            <span>{{ checkbox.choice_label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
 
                 {% if form.preferred_genres.errors %}
                     <div class="error-badge">
@@ -50,6 +57,34 @@
         </div>
     </div>
 </main>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const checkboxes = document.querySelectorAll(".genre-card input");
 
+    function updateUI() {
+        document.querySelectorAll(".genre-card").forEach(card => {
+            const input = card.querySelector("input");
+            card.classList.toggle("active", input.checked);
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener("change", () => {
+            const checked = document.querySelectorAll(".genre-card input:checked");
+
+            if (checked.length > 3) {
+                cb.checked = false;
+                alert("Només pots seleccionar 3 gèneres");
+            }
+
+            updateUI();
+        });
+    });
+
+    // importante: estado inicial
+    updateUI();
+});
+</script>
 </body>
 </html>
+
