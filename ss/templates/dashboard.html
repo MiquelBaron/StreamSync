@@ -22,6 +22,9 @@
     <div class="nf-header__right">
         <div class="nf-profile">
             <div class="nf-profile__meta">
+                <a href="{% url 'preferences' %}" class="nf-nav__link">
+                    ⚙️ Preferències
+                </a>
                 <div class="nf-profile__name">{{ user.username }}</div>
                 <div class="nf-profile__role">{{ user.groups.first.name|default:"Espectador" }}</div>
             </div>

@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preferències</title>
+    <link rel="stylesheet" href="{% static 'ss/css/streamsync-ui.css' %}">
+</head>
+<body class="nf-body">
+
+<header class="nf-header">
+    <div class="nf-header__left">
+        <a class="nf-logo" href="{% url 'dashboard' %}">STREAMSYNC</a>
+    </div>
+    <div class="nf-header__right">
+        <div class="nf-profile">
+            <div class="nf-profile__meta">
+                <div class="nf-profile__name">{{ user.username }}</div>
+                <div class="nf-profile__role">{{ user.groups.first.name }}</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="nf-hero">
+    <div class="nf-hero__inner">
+        <h1 class="nf-hero__title">Preferències de catàleg</h1>
+        <p class="nf-hero__lead">Tria els teus 3 gèneres preferits.</p>
+
+        <div class="preferences-box">
+            <form method="post">
+                {% csrf_token %}
+
+                {{ form.preferred_genres }}
+
+                {% if form.preferred_genres.errors %}
+                    <div class="error-badge">
+                        {% for error in form.preferred_genres.errors %}
+                            <div>⚠️ {{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="actions-bar">
+                    <button type="submit" class="search-submit-btn">Guardar preferències</button>
+                    <a href="{% url 'dashboard' %}" class="clear-filters-link">Cancel·lar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
