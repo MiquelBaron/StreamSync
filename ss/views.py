@@ -88,6 +88,28 @@ class PreferencesView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user.content_consumer_profile
 
+
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "profile_page.html"
+    login_url = "/login/"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.groups.exists():
+            profile_role = user.groups.first().name
+        elif user.is_superuser or user.is_staff:
+            profile_role = "Administrador"
+        elif hasattr(user, "content_consumer_profile"):
+            profile_role = "Consumidor de contingut"
+        else:
+            profile_role = "Usuari"
+
+        context["profile_role"] = profile_role
+        context["favorite_content"] = []
+        return context
+
+
 def home_redirect(request):
     return redirect("/dashboard/")
 
