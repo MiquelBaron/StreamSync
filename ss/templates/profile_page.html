@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil</title>
+    <link rel="stylesheet" href="{% static 'ss/css/streamsync-ui.css' %}">
+</head>
+<body class="nf-body">
+
+<header class="nf-header">
+    <div class="nf-header__left">
+        <a class="nf-logo" href="{% url 'dashboard' %}">STREAMSYNC</a>
+        <nav class="nf-nav" aria-label="Principal">
+            <a class="nf-nav__link" href="{% url 'dashboard' %}">Inici</a>
+            <a class="nf-nav__link" href="{% url 'profile' %}">Perfil</a>
+        </nav>
+    </div>
+    <div class="nf-header__right">
+        {% if user.groups.first.name == "Consumidor de contingut" %}
+            <a href="{% url 'preferences' %}" class="nf-nav__link">Prefer&egrave;ncies</a>
+        {% endif %}
+        <div class="nf-profile">
+            <div class="nf-profile__meta">
+                <div class="nf-profile__name">{{ user.username }}</div>
+                <div class="nf-profile__role">{{ profile_role }}</div>
+            </div>
+            <a class="nf-btn-signout" href="{% url 'logout' %}">Tancar sessi&oacute;</a>
+        </div>
+    </div>
+</header>
+
+<main class="nf-hero nf-profile-page">
+    <div class="nf-hero__inner">
+        <h1 class="nf-hero__title">Perfil d'usuari</h1>
+        <p class="nf-hero__lead">Consulta la informaci&oacute; associada al teu compte.</p>
+
+        <section class="profile-panel" aria-labelledby="profile-info-title">
+            <div class="section-header profile-panel__header">
+                <div>
+                    <h2 id="profile-info-title">Informaci&oacute; del perfil</h2>
+                    <div class="section-sub">Dades b&agrave;siques del teu compte</div>
+                </div>
+            </div>
+
+            <div class="profile-grid">
+                <article class="profile-card">
+                    <span class="profile-card__label">Nom d'usuari</span>
+                    <p class="profile-card__value">{{ user.username }}</p>
+                </article>
+                <article class="profile-card">
+                    <span class="profile-card__label">Rol</span>
+                    <p class="profile-card__value">{{ profile_role }}</p>
+                </article>
+                <article class="profile-card">
+                    <span class="profile-card__label">Email</span>
+                    <p class="profile-card__value">{{ user.email|default:"No disponible" }}</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="profile-panel" aria-labelledby="favorite-content-title">
+            <div class="section-header profile-panel__header">
+                <div>
+                    <h2 id="favorite-content-title">Contingut marcat com a preferit</h2>
+                    <div class="section-sub">Espai preparat per mostrar els teus favorits</div>
+                </div>
+            </div>
+
+            <div class="empty-message profile-empty-state">
+                Encara no hi ha contingut preferit disponible.
+            </div>
+        </section>
+    </div>
+</main>
+
+</body>
+</html>

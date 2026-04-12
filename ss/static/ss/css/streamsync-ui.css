@@ -829,3 +829,54 @@ body.auth-page {
     border: 1px solid rgba(229, 9, 20, 0.6);
     box-shadow: 0 6px 20px rgba(229, 9, 20, 0.3);
 }
+
+/* Perfil */
+.nf-profile-page {
+    min-height: calc(100vh - var(--nf-header-h));
+}
+
+.profile-panel {
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.profile-panel__header {
+    margin-bottom: 1.25rem;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.profile-card {
+    background: #181818;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 1rem 1.1rem;
+}
+
+.profile-card__label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--nf-gray);
+    margin-bottom: 0.55rem;
+}
+
+.profile-card__value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--nf-white);
+    word-break: break-word;
+}
+
+.profile-empty-state {
+    max-width: none;
+}

@@ -8,5 +8,6 @@ urlpatterns = [
         path('', home_redirect),  # raíz '/' redirige a /dashboard
 
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
+    path("profile/", ProfileView.as_view(), name="profile"),
     path("preferences/", PreferencesView.as_view(), name="preferences" ),
 ]

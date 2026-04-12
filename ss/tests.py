@@ -139,3 +139,26 @@ class SearchTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Dune")
         self.assertNotContains(response, "El Duel")
+
+    def test_profile_page_renders_user_information(self):
+        self.user.email = "tester@example.com"
+        self.user.save()
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("profile"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "tester")
+        self.assertContains(response, "tester@example.com")
+        self.assertContains(response, "Contingut marcat com a preferit")
+
+    def test_profile_page_shows_admin_role_for_superuser_without_groups(self):
+        self.user.is_staff = True
+        self.user.is_superuser = True
+        self.user.save()
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("profile"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Administrador")
