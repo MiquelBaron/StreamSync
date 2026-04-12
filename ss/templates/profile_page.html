@@ -59,19 +59,30 @@
                 </article>
             </div>
         </section>
-
-        <section class="profile-panel" aria-labelledby="favorite-content-title">
-            <div class="section-header profile-panel__header">
-                <div>
-                    <h2 id="favorite-content-title">Contingut marcat com a preferit</h2>
-                    <div class="section-sub">Espai preparat per mostrar els teus favorits</div>
+        
+        {% if user.groups.all and user.groups.first and user.groups.first.name == "Consumidor de contingut" %}            <section class="profile-panel" aria-labelledby="favorite-content-title">
+                <div class="section-header profile-panel__header">
+                    <div>
+                        <h2 id="favorite-content-title">Gèneres preferits</h2>
+                        <div class="section-sub">Els teus gustos actuals</div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="empty-message profile-empty-state">
-                Encara no hi ha contingut preferit disponible.
-            </div>
-        </section>
+            
+                <div class="genres-container">
+                    {% if favorite_content %}
+                        <div class="genre-grid">
+                            {% for genre in favorite_content %}
+                                <div class="genre-card active">
+                                    <span>{{ genre.name }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="empty-state">No tens gèneres preferits encara.</p>
+                    {% endif %}
+                </div>
+            </section>
+        {% endif %}
     </div>
 </main>
 

@@ -106,7 +106,8 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             profile_role = "Usuari"
 
         context["profile_role"] = profile_role
-        context["favorite_content"] = []
+        if user.groups.exists() and user.groups.first().name == "Consumidor de contingut":
+            context["favorite_content"] = user.content_consumer_profile.preferred_genres.all()
         return context
 
 
