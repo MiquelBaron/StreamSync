@@ -41,18 +41,12 @@ class DatabaseContentSearchService:
 
         return queryset
 
-    def _serialize_results(self, queryset, content_type: str) -> list[dict]:
-        serialized = []
+   
+   
+   
+   
+   #Aquesat funcio converteix objecte Django en diccionari pla, al accedir als atributs del objecte peta (objecte ORM)
+    def _serialize_results(self, queryset, content_type: str) -> list:
         for item in queryset:
-            serialized.append(
-                {
-                    "title": item.title,
-                    "content_type": content_type,
-                    "director": item.director.name,
-                    "genre": item.genre.name,
-                    "minimum_age": item.age_rating.minimum_age,
-                    "rating_label": item.age_rating.description,
-                    "platforms": ", ".join(platform.name for platform in item.platforms.all()) or "-",
-                }
-            )
-        return serialized
+            item.content_type = content_type  # afegim l'atribut al
+        return list(queryset)
