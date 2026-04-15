@@ -103,34 +103,17 @@
     </div>
 </div>
 
-{% if not has_searched %}
+{% if not has_searched %}s
 <section class="nf-row" aria-labelledby="row-movies">
     <div class="nf-row__head">
         <div>
-            <h2 class="nf-row__title" id="row-movies">Tendències ara</h2>
-            <p class="nf-row__sub">Pel·lícules destacades</p>
+            <h2 class="nf-row__title" id="row-movies">Pel·lícules destacades</h2>
+
         </div>
     </div>
     <div class="nf-row__track">
         {% for item in featured_movies %}
-            <article class="nf-poster">
-                <div class="nf-poster__thumb" aria-hidden="true">🎬</div>
-                <div class="nf-poster__body">
-                    <span class="nf-poster__badge">Pel·lícula</span>
-                    <div class="nf-poster__title">
-                        <span>{{ item.title }}</span>
-                        <span class="nf-poster__age">{{ item.age_rating.minimum_age }}+</span>
-                    </div>
-                    <div class="nf-poster__meta">
-                        <span class="nf-poster__pill">{{ item.genre.name }}</span>
-                        <span class="nf-poster__pill">{{ item.age_rating.description }}</span>
-                    </div>
-                    <p class="nf-poster__detail"><strong>Director:</strong> {{ item.director.name }}</p>
-                    <p class="nf-poster__detail"><strong>Plataformes:</strong>
-                        {% for platform in item.platforms.all %}{{ platform.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
-                    </p>
-                </div>
-            </article>
+        {% include "components/content_card.html" with item=item %}
         {% endfor %}
     </div>
 </section>
@@ -138,30 +121,13 @@
 <section class="nf-row" aria-labelledby="row-series">
     <div class="nf-row__head">
         <div>
-            <h2 class="nf-row__title" id="row-series">Sèries que t’enganxaran</h2>
-            <p class="nf-row__sub">Maratoneja sense límits</p>
+            <h2 class="nf-row__title" id="row-series">Sèries destacades</h2>
         </div>
     </div>
     <div class="nf-row__track">
         {% for item in featured_series %}
-            <article class="nf-poster">
-                <div class="nf-poster__thumb" aria-hidden="true">📺</div>
-                <div class="nf-poster__body">
-                    <span class="nf-poster__badge">Sèrie</span>
-                    <div class="nf-poster__title">
-                        <span>{{ item.title }}</span>
-                        <span class="nf-poster__age">{{ item.age_rating.minimum_age }}+</span>
-                    </div>
-                    <div class="nf-poster__meta">
-                        <span class="nf-poster__pill">{{ item.genre.name }}</span>
-                        <span class="nf-poster__pill">{{ item.age_rating.description }}</span>
-                    </div>
-                    <p class="nf-poster__detail"><strong>Director:</strong> {{ item.director.name }}</p>
-                    <p class="nf-poster__detail"><strong>Plataformes:</strong>
-                        {% for platform in item.platforms.all %}{{ platform.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
-                    </p>
-                </div>
-            </article>
+        {% include "components/content_card.html" with item=item %}
+
         {% endfor %}
     </div>
 </section>
@@ -193,21 +159,7 @@
     {% elif results %}
         <div class="movies-grid">
             {% for item in results %}
-                <div class="netflix-card">
-                    <div class="card-badge">{{ item.content_type }}</div>
-                    <div class="card-content">
-                        <div class="card-title">
-                            {{ item.title }}
-                            <span class="rating-age">{{ item.minimum_age }}+</span>
-                        </div>
-                        <div class="meta-row">
-                            <span class="meta-pill">{{ item.genre }}</span>
-                            <span class="meta-pill">{{ item.rating_label }}</span>
-                        </div>
-                        <div class="detail-line"><strong>Director:</strong> {{ item.director }}</div>
-                        <div class="detail-line"><strong>Plataformes:</strong> {{ item.platforms }}</div>
-                    </div>
-                </div>
+            {% include "components/content_card.html" with item=item %}   
             {% endfor %}
         </div>
     {% else %}
@@ -235,6 +187,49 @@
         sortField: { field: "text", direction: "asc" },
         placeholder: "Qualsevol edat",
     });
+    // ── Modal de contingut ────────────────────────────────────────────
+    function openContentModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+
+        // Tanca amb ESC
+        modal._escHandler = (e) => { if (e.key === 'Escape') closeContentModal(id); };
+        document.addEventListener('keydown', modal._escHandler);
+    }
+
+    function closeContentModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.classList.remove('is-open');
+        document.body.style.overflow = '';
+        if (modal._escHandler) {
+            document.removeEventListener('keydown', modal._escHandler);
+        }
+
+        // Tanca el menú de plataformes si estava obert
+        modal.querySelectorAll('.ss-platform-menu').forEach(m => m.hidden = true);
+    }
+
+    function handleModalBackdropClick(event, modal) {
+        // Tanca si es clica fora del box
+        if (event.target === modal) closeContentModal(modal.id);
+    }
+
+    function togglePlatformMenu(menuId) {
+        const menu = document.getElementById(menuId);
+        if (!menu) return;
+        menu.hidden = !menu.hidden;
+    }
+
+    function simulateRedirect(platformName) {
+        alert(`Redirigint a ${platformName}…\n(Simulació — en producció obrirà la plataforma real.)`);
+    }
+
+
+
+
 </script>
 </body>
 </html>

@@ -389,93 +389,6 @@ body.nf-body {
     height: 6px;
 }
 
-.nf-poster {
-    flex: 0 0 auto;
-    width: min(240px, 72vw);
-    scroll-snap-align: start;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #2f2f2f;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: transform 0.2s ease, box-shadow 0.2s;
-}
-
-.nf-poster:hover {
-    transform: scale(1.05);
-    z-index: 2;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
-}
-
-.nf-poster__thumb {
-    aspect-ratio: 16 / 9;
-    background: linear-gradient(160deg, #333 0%, #1a1a1a 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    color: rgba(255, 255, 255, 0.2);
-}
-
-.nf-poster__body {
-    padding: 0.75rem 0.85rem 1rem;
-}
-
-.nf-poster__badge {
-    display: inline-block;
-    background: var(--nf-red);
-    font-size: 0.62rem;
-    font-weight: 800;
-    padding: 0.15rem 0.45rem;
-    border-radius: 2px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 0.35rem;
-}
-
-.nf-poster__title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    margin-bottom: 0.35rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.35rem;
-}
-
-.nf-poster__age {
-    flex-shrink: 0;
-    font-size: 0.65rem;
-    background: rgba(0, 0, 0, 0.55);
-    padding: 0.15rem 0.4rem;
-    border-radius: 2px;
-}
-
-.nf-poster__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-bottom: 0.4rem;
-}
-
-.nf-poster__pill {
-    font-size: 0.65rem;
-    color: #ccc;
-    background: rgba(255, 255, 255, 0.08);
-    padding: 0.12rem 0.45rem;
-    border-radius: 2px;
-}
-
-.nf-poster__detail {
-    font-size: 0.72rem;
-    color: var(--nf-gray);
-    line-height: 1.35;
-}
-
-.nf-poster__detail strong {
-    color: #e5e5e5;
-    font-weight: 600;
-}
-
 /* —— Resultats / graella alternativa —— */
 .content-section {
     padding: 1.5rem 4% 2rem;
@@ -509,75 +422,6 @@ body.nf-body {
     gap: 1rem;
     max-width: 1400px;
     margin: 0 auto;
-}
-
-.netflix-card {
-    background: #181818;
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: transform 0.2s, border-color 0.2s;
-}
-
-.netflix-card:hover {
-    transform: scale(1.02);
-    border-color: rgba(229, 9, 20, 0.45);
-}
-
-.card-badge {
-    display: inline-block;
-    background: var(--nf-red);
-    font-size: 0.65rem;
-    font-weight: 800;
-    padding: 0.2rem 0.55rem;
-    border-radius: 2px;
-    margin: 0.75rem 0.85rem 0;
-    text-transform: uppercase;
-}
-
-.card-content {
-    padding: 0.75rem 0.85rem 1rem;
-}
-
-.card-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 0.35rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.rating-age {
-    font-size: 0.65rem;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 0.15rem 0.45rem;
-    border-radius: 2px;
-}
-
-.meta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin: 0.45rem 0 0.5rem;
-}
-
-.meta-pill {
-    font-size: 0.65rem;
-    background: rgba(255, 255, 255, 0.08);
-    padding: 0.12rem 0.45rem;
-    border-radius: 2px;
-}
-
-.detail-line {
-    font-size: 0.78rem;
-    color: var(--nf-gray);
-    margin-top: 0.35rem;
-}
-
-.detail-line strong {
-    color: #e5e5e5;
 }
 
 .empty-message {
@@ -766,7 +610,6 @@ body.auth-page {
     font-size: 0.88rem;
 }
 
-
 /* —— Preferències —— */
 .preferences-box {
     padding: 2.5rem;
@@ -775,7 +618,6 @@ body.auth-page {
     max-width: 800px;
     margin: 2rem auto;
 }
-
 
 .preferences-box input[type="checkbox"] {
     margin-right: 12px;
@@ -830,7 +672,7 @@ body.auth-page {
     box-shadow: 0 6px 20px rgba(229, 9, 20, 0.3);
 }
 
-/* Perfil */
+/* —— Perfil —— */
 .nf-profile-page {
     min-height: calc(100vh - var(--nf-header-h));
 }
@@ -879,4 +721,354 @@ body.auth-page {
 
 .profile-empty-state {
     max-width: none;
+}
+
+/* ================================================================
+   ss-card — component reutilitzable de contingut
+   ================================================================ */
+
+.ss-card {
+    flex: 0 0 auto;
+    width: min(240px, 72vw);
+    scroll-snap-align: start;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #2f2f2f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.ss-card:hover {
+    transform: scale(1.05);
+    z-index: 2;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+}
+
+/* Quan ss-card és dins la graella de resultats, el grid mana la mida */
+.movies-grid .ss-card {
+    width: auto;
+    flex: none;
+    scroll-snap-align: none;
+}
+
+.movies-grid .ss-card:hover {
+    transform: scale(1.02);
+    border-color: rgba(229, 9, 20, 0.45);
+    box-shadow: none;
+}
+
+.ss-card__thumb {
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(160deg, #333 0%, #1a1a1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.ss-card__body {
+    padding: 0.75rem 0.85rem 1rem;
+}
+
+.ss-card__badge {
+    display: inline-block;
+    background: var(--nf-red);
+    font-size: 0.5rem;
+    white-space: nowrap;
+    font-weight: 800;
+    padding: 0.15rem 0.45rem;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.35rem;
+}
+
+.ss-card__title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.35rem;
+}
+
+.ss-card__age {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 0.15rem 0.4rem;
+    border-radius: 2px;
+}
+
+.ss-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.4rem;
+}
+
+.ss-card__pill {
+    font-size: 0.65rem;
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.12rem 0.45rem;
+    border-radius: 2px;
+}
+
+.ss-card__detail {
+    font-size: 0.72rem;
+    color: var(--nf-gray);
+    line-height: 1.35;
+}
+
+.ss-card__detail strong {
+    color: #e5e5e5;
+    font-weight: 600;
+}
+
+/* ================================================================
+   ss-modal — finestra de detall que s'obre en clicar una targeta
+   ================================================================ */
+
+.ss-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0, 0, 0, 0.82);
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.ss-modal.is-open {
+    display: flex;
+}
+
+.ss-modal__box {
+    position: relative;
+    background: #181818;
+    border-radius: 6px;
+    width: 100%;
+    max-width: 680px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+    animation: modalIn 0.22s ease;
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(12px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.ss-modal__close {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.15s;
+}
+
+.ss-modal__close:hover {
+    background: var(--nf-red);
+}
+
+.ss-modal__hero {
+    display: flex;
+    gap: 1.25rem;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    align-items: flex-start;
+}
+
+.ss-modal__thumb {
+    flex-shrink: 0;
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(160deg, #333 0%, #1a1a1a 100%);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+}
+
+.ss-modal__hero-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.ss-modal__title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    margin: 0.3rem 0 0.5rem;
+    line-height: 1.2;
+}
+
+.ss-modal__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.ss-modal__rating {
+    background: rgba(229, 9, 20, 0.2) !important;
+    color: #fff !important;
+}
+
+.ss-modal__body {
+    padding: 1.25rem 1.5rem 1.75rem;
+}
+
+.ss-modal__synopsis {
+    font-size: 0.9rem;
+    color: var(--nf-gray);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+}
+
+.ss-modal__dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.ss-modal__dl-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.ss-modal__dl-row dt {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--nf-gray);
+}
+
+.ss-modal__dl-row dd {
+    font-size: 0.88rem;
+    color: #e5e5e5;
+}
+
+.ss-modal__platforms-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding-top: 1.1rem;
+}
+
+.ss-modal__platforms-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--nf-gray);
+    margin-bottom: 0.65rem;
+}
+
+.ss-modal__platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.ss-platform {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.ss-platform__name {
+    color: #e5e5e5;
+}
+
+.ss-modal__watch-btn-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+.ss-btn-watch {
+    background: var(--nf-red);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.65rem 1.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.ss-btn-watch:hover {
+    background: var(--nf-red-hover);
+}
+
+.ss-platform-menu {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: 0;
+    background: #2f2f2f;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    min-width: 180px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    z-index: 10;
+    overflow: hidden;
+}
+
+.ss-platform-menu__label {
+    font-size: 0.7rem;
+    color: var(--nf-gray);
+    padding: 0.6rem 0.85rem 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ss-platform-menu__item {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    color: #e5e5e5;
+    text-align: left;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.ss-platform-menu__item:hover {
+    background: rgba(229, 9, 20, 0.25);
+    color: #fff;
+}
+
+.ss-modal__no-platform {
+    font-size: 0.82rem;
+    color: var(--nf-gray);
+}
+
+@media (max-width: 480px) {
+    .ss-modal__hero { flex-direction: column; }
+    .ss-modal__dl   { grid-template-columns: 1fr; }
+    .ss-modal__box  { max-height: 95vh; }
 }
