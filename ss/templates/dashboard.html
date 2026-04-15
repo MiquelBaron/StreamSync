@@ -10,31 +10,8 @@
 </head>
 <body class="nf-body">
 
-<header class="nf-header">
-    <div class="nf-header__left">
-        <a class="nf-logo" href="{% url 'dashboard' %}">STREAMSYNC</a>
-        <nav class="nf-nav" aria-label="Principal">
-            <a class="nf-nav__link" href="{% url 'dashboard' %}">Inici</a>
-            <a class="nf-nav__link" href="#cerca">Cerca</a>
-            <a class="nf-nav__link" href="#resultats">Resultats</a>
-            <a class="nf-nav__link" href="{% url 'profile' %}">Perfil</a>
-        </nav>
-    </div>
-    <div class="nf-header__right">
-        {% if user.groups.first.name == "Consumidor de contingut" %}
-                <a href="{% url 'preferences' %}" class="nf-nav__link">
-                    Preferències
-                </a>
-        {% endif %}
-        <div class="nf-profile">
-            <div class="nf-profile__meta">
-                <div class="nf-profile__name">{{ user.username }}</div>
-                <div class="nf-profile__role">{{ user.groups.first.name}}</div>
-            </div>
-            <a class="nf-btn-signout" href="{% url 'logout' %}">Tancar sessió</a>
-        </div>
-    </div>
-</header>
+    {% include "components/navbar.html" %}
+
 
 <div class="nf-hero" id="cerca">
     <div class="nf-hero__inner">
@@ -133,39 +110,44 @@
 </section>
 {% endif %}
 
+{% if has_searched %}
+
 <div class="content-section" id="resultats">
     <div class="section-header">
         <div>
             <h2>Resultats de la cerca</h2>
             <div class="section-sub">
-                {% if has_searched and not search_form.errors %}
+                {% if not search_form.errors %}
                     Mostrant {{ results|length }} contingut{{ results|length|pluralize }}
                 {% else %}
-                    Continguts que coincideixen amb els teus filtres
+                    Revisa els filtres aplicats
                 {% endif %}
             </div>
         </div>
-        {% if has_searched and not search_form.errors and results %}
-            <div style="background:var(--nf-red);padding:0.25rem 1rem;border-radius:4px;font-weight:700;font-size:0.85rem;">{{ results|length }} títols</div>
+
+        {% if not search_form.errors and results %}
+            <div style="background:var(--nf-red);padding:0.25rem 1rem;border-radius:4px;font-weight:700;font-size:0.85rem;">
+                {{ results|length }} títols
+            </div>
         {% endif %}
     </div>
 
-    {% if not has_searched %}
-        <div class="empty-message">
-            Explora el catàleg destacat o utilitza la cerca. Escriu un títol o tria un gènere.
-        </div>
-    {% elif search_form.errors %}
+    {% if search_form.errors %}
         <div class="empty-message">Revisa els camps del formulari i torna a provar.</div>
+
     {% elif results %}
         <div class="movies-grid">
             {% for item in results %}
-            {% include "components/content_card.html" with item=item %}   
+                {% include "components/content_card.html" with item=item %}
             {% endfor %}
         </div>
+
     {% else %}
         <div class="empty-message">No s’han trobat continguts amb aquests criteris.</div>
     {% endif %}
 </div>
+
+{% endif %}
 
 <footer class="nf-footer">
     StreamSync · Catàleg unificat

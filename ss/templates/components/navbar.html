@@ -1,0 +1,51 @@
+{% load static %}
+
+<header class="nf-header">
+    <div class="nf-header__left">
+        <a class="nf-logo" href="{% url 'dashboard' %}">STREAMSYNC</a>
+
+        <nav class="nf-nav" aria-label="Principal">
+            <a class="nf-nav__link" href="{% url 'dashboard' %}">
+                Inici
+            </a>
+
+            <a class="nf-nav__link" href="{% url 'profile' %}">
+                Perfil
+            </a>
+
+            {% if user.groups.first and user.groups.first.name == "Consumidor de contingut" %}
+                <a class="nf-nav__link nf-nav__link--highlight" href="{% url 'preferences' %}">
+                    Preferències
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+
+    <div class="nf-header__right">
+        <div class="nf-profile">
+
+            <!-- 👤 ICONA PERFIL -->
+            <div class="nf-profile__avatar" title="{{ user.username }}">
+                {{ user.username|first|upper }}
+            </div>
+
+            <div class="nf-profile__meta">
+                <div class="nf-profile__name">{{ user.username }}</div>
+
+                <div class="nf-profile__role">
+                    {% if user.groups.first %}
+                        {{ user.groups.first.name }}
+                    {% else %}
+                        {% if user.is_staff %}
+                        Staff
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <a class="nf-btn-signout" href="{% url 'logout' %}">
+                Tancar sessió
+            </a>
+        </div>
+    </div>
+</header>

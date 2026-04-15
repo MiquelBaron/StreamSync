@@ -173,7 +173,6 @@ body.nf-body {
 
 .search-master-container {
     background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(12px);
     border-radius: 4px;
     padding: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -651,7 +650,6 @@ body.auth-page {
     font-weight: 600;
     transition: 0.2s ease;
     text-align: center;
-    user-select: none;
 }
 
 .genre-card:hover {
@@ -1072,3 +1070,37 @@ body.auth-page {
     .ss-modal__dl   { grid-template-columns: 1fr; }
     .ss-modal__box  { max-height: 95vh; }
 }
+
+.nf-profile__avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e50914, #b00610);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-right: 0.6rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+}
+
+.nf-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.nf-profile__meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.nf-profile__role {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+

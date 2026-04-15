@@ -9,27 +9,8 @@
 </head>
 <body class="nf-body">
 
-<header class="nf-header">
-    <div class="nf-header__left">
-        <a class="nf-logo" href="{% url 'dashboard' %}">STREAMSYNC</a>
-        <nav class="nf-nav" aria-label="Principal">
-            <a class="nf-nav__link" href="{% url 'dashboard' %}">Inici</a>
-            <a class="nf-nav__link" href="{% url 'profile' %}">Perfil</a>
-        </nav>
-    </div>
-    <div class="nf-header__right">
-        {% if user.groups.first.name == "Consumidor de contingut" %}
-            <a href="{% url 'preferences' %}" class="nf-nav__link">Prefer&egrave;ncies</a>
-        {% endif %}
-        <div class="nf-profile">
-            <div class="nf-profile__meta">
-                <div class="nf-profile__name">{{ user.username }}</div>
-                <div class="nf-profile__role">{{ profile_role }}</div>
-            </div>
-            <a class="nf-btn-signout" href="{% url 'logout' %}">Tancar sessi&oacute;</a>
-        </div>
-    </div>
-</header>
+    {% include "components/navbar.html" %}
+
 
 <main class="nf-hero nf-profile-page">
     <div class="nf-hero__inner">

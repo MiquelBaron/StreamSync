@@ -9,19 +9,8 @@
 </head>
 <body class="nf-body">
 
-<header class="nf-header">
-    <div class="nf-header__left">
-        <a class="nf-logo" href="{% url 'dashboard' %}">STREAMSYNC</a>
-    </div>
-    <div class="nf-header__right">
-        <div class="nf-profile">
-            <div class="nf-profile__meta">
-                <div class="nf-profile__name">{{ user.username }}</div>
-                <div class="nf-profile__role">{{ user.groups.first.name }}</div>
-            </div>
-        </div>
-    </div>
-</header>
+{% include "components/navbar.html" %}
+
 
 <main class="nf-hero">
     <div class="nf-hero__inner">

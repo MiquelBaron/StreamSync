@@ -58,15 +58,19 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             results = DatabaseContentSearchService().search(criteria)
 
         featured_movies = (
-            Movie.objects.select_related("director", "genre", "age_rating", "country", "language")
+            Movie.objects
+            .select_related("director", "genre", "age_rating", "country", "language")
             .prefetch_related("platforms")
-            .order_by("title")[:6]
+            .filter(rating__isnull=False)
+            .order_by("-rating")[:10]
         )
 
         featured_series = (
-            Series.objects.select_related("director", "genre", "age_rating", "country", "language")
+            Series.objects
+            .select_related("director", "genre", "age_rating", "country", "language")
             .prefetch_related("platforms")
-            .order_by("title")[:6]
+            .filter(rating__isnull=False)
+            .order_by("-rating")[:10]
         )
 
         context["has_searched"] = has_searched
