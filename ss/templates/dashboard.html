@@ -164,6 +164,54 @@
         {% endfor %}
     </div>
 </section>
+
+{% if is_content_consumer %}
+<section class="nf-row" aria-labelledby="row-preferred">
+    <div class="nf-row__head">
+        <div>
+            <h2 class="nf-row__title" id="row-preferred">Continguts preferits</h2>
+            <p class="nf-row__sub">Basat en els teus gèneres preferits</p>
+        </div>
+    </div>
+
+    {% if preferred_content %}
+        <div class="nf-row__track">
+            {% for item in preferred_content %}
+                <article class="nf-poster">
+                    <div class="nf-poster__thumb" aria-hidden="true">
+                        {% if item.start_year %}📺{% else %}🎬{% endif %}
+                    </div>
+                    <div class="nf-poster__body">
+                        <span class="nf-poster__badge">
+                            {% if item.start_year %}Sèrie{% else %}Pel·lícula{% endif %}
+                        </span>
+                        <div class="nf-poster__title">
+                            <span>{{ item.title }}</span>
+                            <span class="nf-poster__age">{{ item.age_rating.minimum_age }}+</span>
+                        </div>
+                        <div class="nf-poster__meta">
+                            <span class="nf-poster__pill">{{ item.genre.name }}</span>
+                            <span class="nf-poster__pill">{{ item.age_rating.description }}</span>
+                        </div>
+                        <p class="nf-poster__detail"><strong>Director:</strong> {{ item.director.name }}</p>
+                        <p class="nf-poster__detail"><strong>Plataformes:</strong>
+                            {% for platform in item.platforms.all %}
+                                {{ platform.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                —
+                            {% endfor %}
+                        </p>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-message">
+            Encara no tens gèneres preferits configurats. Ves a Preferències per seleccionar-ne.
+        </div>
+    {% endif %}
+</section>
+{% endif %}
 {% endif %}
 
 <div class="content-section" id="resultats">
