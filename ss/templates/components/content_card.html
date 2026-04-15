@@ -42,7 +42,7 @@
 
         <div class="ss-modal__hero">
             <div class="ss-modal__thumb" aria-hidden="true">
-                {% if item.content_type == 'Sèrie' %}📺{% else %}🎬{% endif %}
+                {% if item.total_seasons %}Sèrie{% else %}Pel·lícula{% endif %}
             </div>
             <div class="ss-modal__hero-info">
                 <span class="ss-card__badge">{{ item.content_type }}</span>
