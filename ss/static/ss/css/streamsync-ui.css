@@ -775,7 +775,8 @@ body.auth-page {
 .ss-card__badge {
     display: inline-block;
     background: var(--nf-red);
-    font-size: 0.62rem;
+    font-size: 0.5rem;
+    white-space: nowrap;
     font-weight: 800;
     padding: 0.15rem 0.45rem;
     border-radius: 2px;
@@ -838,7 +839,7 @@ body.auth-page {
     inset: 0;
     z-index: 500;
     background: rgba(0, 0, 0, 0.82);
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 1rem;
     overflow-y: auto;
@@ -854,8 +855,6 @@ body.auth-page {
     border-radius: 6px;
     width: 100%;
     max-width: 680px;
-    max-height: 90vh;
-    overflow-y: auto;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
     animation: modalIn 0.22s ease;

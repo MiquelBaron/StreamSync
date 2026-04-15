@@ -1,4 +1,3 @@
-
 <article class="ss-card"
          data-id="{{ item.id }}"
          data-modal="content-modal-{{ item.id }}"
@@ -8,32 +7,48 @@
          aria-label="Veure detalls de {{ item.title }}">
 
     <div class="ss-card__thumb" aria-hidden="true">
-        {% if item.content_type == 'Sèrie' %}📺{% else %}🎬{% endif %}
+        {% if item.total_seasons %}📺{% else %}🎬{% endif %}
     </div>
+
     <div class="ss-card__body">
-        <span class="ss-card__badge">{{ item.content_type }}</span>
+        <span class="ss-card__badge">
+            {% if item.total_seasons %}Sèrie{% else %}Pel·lícula{% endif %}
+        </span>
+
         <div class="ss-card__title">
             <span>{{ item.title }}</span>
             <span class="ss-card__age">{{ item.age_rating.minimum_age }}+</span>
         </div>
+
         <div class="ss-card__meta">
             <span class="ss-card__pill">{{ item.genre.name }}</span>
             <span class="ss-card__pill">{{ item.age_rating.description }}</span>
         </div>
-        <p class="ss-card__detail"><strong>Director:</strong> {{ item.director.name }}</p>
-        <p class="ss-card__detail"><strong>Plataformes:</strong>
-            {% for p in item.platforms.all %}{{ p.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
+
+        <p class="ss-card__detail">
+            <strong>Director:</strong> {{ item.director.name }}
+        </p>
+
+        <p class="ss-card__detail">
+            <strong>Plataformes:</strong>
+            {% for p in item.platforms.all %}
+                {{ p.name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                —
+            {% endfor %}
         </p>
     </div>
 </article>
 
-{# ── Modal ─────────────────────────────────────────────────────── #}
+
+{# ── MODAL ─────────────────────────────────────────────────────── #}
 <div id="content-modal-{{ item.id }}"
      class="ss-modal"
      role="dialog"
      aria-modal="true"
      aria-label="{{ item.title }}"
      onclick="handleModalBackdropClick(event, this)">
+
     <div class="ss-modal__box">
 
         <button class="ss-modal__close"
@@ -42,15 +57,21 @@
 
         <div class="ss-modal__hero">
             <div class="ss-modal__thumb" aria-hidden="true">
-                {% if item.total_seasons %}Sèrie{% else %}Pel·lícula{% endif %}
+                {% if item.total_seasons %}📺{% else %}🎬{% endif %}
             </div>
+
             <div class="ss-modal__hero-info">
-                <span class="ss-card__badge">{{ item.content_type }}</span>
+                <span class="ss-card__badge">
+                    {% if item.total_seasons %}Sèrie{% else %}Pel·lícula{% endif %}
+                </span>
+
                 <h2 class="ss-modal__title">{{ item.title }}</h2>
+
                 <div class="ss-modal__pills">
                     <span class="ss-card__pill">{{ item.genre.name }}</span>
                     <span class="ss-card__pill">{{ item.age_rating.description }}</span>
                     <span class="ss-card__pill">{{ item.age_rating.minimum_age }}+</span>
+
                     {% if item.rating %}
                         <span class="ss-card__pill ss-modal__rating">⭐ {{ item.rating }}</span>
                     {% endif %}
@@ -65,44 +86,63 @@
             {% endif %}
 
             <dl class="ss-modal__dl">
+
                 <div class="ss-modal__dl-row">
                     <dt>Director</dt>
                     <dd>{{ item.director.name }}</dd>
                 </div>
 
-                {% if item.content_type == 'Sèrie' %}
+                {# ✅ NOMÉS SÈRIES → Temporades totals #}
+                {% if item.total_seasons %}
                     <div class="ss-modal__dl-row">
-                        <dt>Anys</dt>
-                        <dd>{{ item.start_year }}{% if item.end_year %} – {{ item.end_year }}{% else %} – en curs{% endif %}</dd>
-                    </div>
-                    <div class="ss-modal__dl-row">
-                        <dt>Temporades</dt>
+                        <dt>Temporades totals</dt>
                         <dd>{{ item.total_seasons }}</dd>
                     </div>
-                {% else %}
+                {% endif %}
+
+                {# SÈRIES → anys #}
+                {% if item.start_year %}
+                    <div class="ss-modal__dl-row">
+                        <dt>Anys</dt>
+                        <dd>
+                            {{ item.start_year }}
+                            {% if item.end_year %}
+                                – {{ item.end_year }}
+                            {% else %}
+                                – en curs
+                            {% endif %}
+                        </dd>
+                    </div>
+                {% endif %}
+
+                {# PEL·LÍCULES → any #}
+                {% if item.year %}
                     <div class="ss-modal__dl-row">
                         <dt>Any</dt>
                         <dd>{{ item.year }}</dd>
                     </div>
-                    {% if item.release_date %}
-                        <div class="ss-modal__dl-row">
-                            <dt>Estrena</dt>
-                            <dd>{{ item.release_date }}</dd>
-                        </div>
-                    {% endif %}
+                {% endif %}
+
+                {% if item.release_date %}
+                    <div class="ss-modal__dl-row">
+                        <dt>Estrena</dt>
+                        <dd>{{ item.release_date }}</dd>
+                    </div>
                 {% endif %}
 
                 <div class="ss-modal__dl-row">
                     <dt>País</dt>
                     <dd>{{ item.country.name }}</dd>
                 </div>
+
                 <div class="ss-modal__dl-row">
                     <dt>Idioma</dt>
                     <dd>{{ item.language.name }}</dd>
                 </div>
+
             </dl>
 
-            {# ── Plataformes + botó "Veure" ─────────────────────── #}
+            {# ── Plataformes ─────────────────────────────────────── #}
             <div class="ss-modal__platforms-section">
                 <h3 class="ss-modal__platforms-title">Disponible a</h3>
 
@@ -121,8 +161,10 @@
                                     onclick="togglePlatformMenu('watch-menu-{{ item.id }}')">
                                 ▶ Veure
                             </button>
+
                             <div id="watch-menu-{{ item.id }}" class="ss-platform-menu" hidden>
                                 <p class="ss-platform-menu__label">Tria la plataforma:</p>
+
                                 {% for platform in platforms %}
                                     <button class="ss-platform-menu__item"
                                             onclick="simulateRedirect('{{ platform.name }}')">
@@ -131,12 +173,15 @@
                                 {% endfor %}
                             </div>
                         </div>
+
                     {% else %}
-                        <p class="ss-modal__no-platform">No disponible a cap plataforma.</p>
+                        <p class="ss-modal__no-platform">
+                            No disponible a cap plataforma.
+                        </p>
                     {% endif %}
                 {% endwith %}
             </div>
 
-        </div>{# /.ss-modal__body #}
-    </div>{# /.ss-modal__box #}
-</div>{# /.ss-modal #}
+        </div>
+    </div>
+</div>
