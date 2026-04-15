@@ -127,24 +127,8 @@
     </div>
     <div class="nf-row__track">
         {% for item in featured_series %}
-            <article class="nf-poster">
-                <div class="nf-poster__thumb" aria-hidden="true">📺</div>
-                <div class="nf-poster__body">
-                    <span class="nf-poster__badge">Sèrie</span>
-                    <div class="nf-poster__title">
-                        <span>{{ item.title }}</span>
-                        <span class="nf-poster__age">{{ item.age_rating.minimum_age }}+</span>
-                    </div>
-                    <div class="nf-poster__meta">
-                        <span class="nf-poster__pill">{{ item.genre.name }}</span>
-                        <span class="nf-poster__pill">{{ item.age_rating.description }}</span>
-                    </div>
-                    <p class="nf-poster__detail"><strong>Director:</strong> {{ item.director.name }}</p>
-                    <p class="nf-poster__detail"><strong>Plataformes:</strong>
-                        {% for platform in item.platforms.all %}{{ platform.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
-                    </p>
-                </div>
-            </article>
+        {% include "components/content_card.html" with item=item %}
+
         {% endfor %}
     </div>
 </section>
