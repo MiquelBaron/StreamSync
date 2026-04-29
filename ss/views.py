@@ -1,6 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import Group
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -9,6 +8,7 @@ from django.views.generic.edit import CreateView, UpdateView
 
 from .forms import *
 from .models import *
+from .roles import ROLE_CONTENT_CONSUMER, ensure_role_groups, get_role_group, user_has_role
 from .search import DatabaseContentSearchService, SearchCriteria
 
 
@@ -31,7 +31,8 @@ class RegisterView(CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        creator_group = Group.objects.get(name="Consumidor de contingut")
+        ensure_role_groups()
+        creator_group = get_role_group(ROLE_CONTENT_CONSUMER)
         self.object.groups.add(creator_group)
         return response
 
@@ -58,7 +59,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             results = DatabaseContentSearchService().search(criteria)
 
         featured_movies = (
-            Movie.objects
+            Film.objects
             .select_related("director", "genre", "age_rating", "country", "language")
             .prefetch_related("platforms")
             .filter(rating__isnull=False)
@@ -66,7 +67,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         )
 
         featured_series = (
-            Series.objects
+            Serie.objects
             .select_related("director", "genre", "age_rating", "country", "language")
             .prefetch_related("platforms")
             .filter(rating__isnull=False)
@@ -90,7 +91,7 @@ class PreferencesView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("dashboard")
 
     def get_object(self, queryset=None):
-        return self.request.user.content_consumer_profile
+        return self.request.user.contentconsumer
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
@@ -104,14 +105,14 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             profile_role = user.groups.first().name
         elif user.is_superuser or user.is_staff:
             profile_role = "Administrador"
-        elif hasattr(user, "content_consumer_profile"):
+        elif user_has_role(user, ROLE_CONTENT_CONSUMER) and hasattr(user, "contentconsumer"):
             profile_role = "Consumidor de contingut"
         else:
             profile_role = "Usuari"
 
         context["profile_role"] = profile_role
-        if user.groups.exists() and user.groups.first().name == "Consumidor de contingut":
-            context["favorite_content"] = user.content_consumer_profile.preferred_genres.all()
+        if user_has_role(user, ROLE_CONTENT_CONSUMER):
+            context["favorite_content"] = user.contentconsumer.preferred_genres.all()
         return context
 
 

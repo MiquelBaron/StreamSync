@@ -1,5 +1,5 @@
 """
-Un solo flujo: migrate, grupo Consumidor de contingut, superuser admin,
+Un solo flujo: migrate, grupos de rol, superuser admin,
 usuario consumidor con ese rol, datos demo.
 """
 from django.core.management import call_command
@@ -14,7 +14,7 @@ from ss.management.dev_database import (
 
 class Command(BaseCommand):
     help = (
-        "Migrate, create Consumidor de contingut group, admin + consumidor users, demo data."
+        "Migrate, create role groups, admin + consumidor users, demo data."
     )
 
     def handle(self, *args, **options):

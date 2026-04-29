@@ -1,5 +1,5 @@
 """
-Sincronitza els models de catàleg (Movie, Series i FKs) des de ``ss.services``.
+Sincronitza els models de catàleg (Film, Serie i FKs) des de ``ss.services``.
 
 Flux (per cada clau de ``services.PLATFORMS``): es criden ``get_all_movies()`` i
 ``get_all_series()`` (dict per plataforma), i ``get_genres``, ``get_age_ratings``,
@@ -21,7 +21,7 @@ from django.db import transaction
 from django.utils.dateparse import parse_date, parse_datetime
 
 from ss import services
-from ss.models import AgeRating, Country, Director, Genre, Language, Movie, Platform, Series
+from ss.models import AgeRating, Country, Director, Film, Genre, Language, Platform, Serie
 
 
 def _parse_api_date(value: Any):
@@ -219,7 +219,7 @@ def sync_catalog_from_apis() -> dict[str, Any]:
     per plataforma, ``get_genres`` / ``get_age_ratings`` / ``get_directors``.
 
     Upserta ``Genre``, ``AgeRating``, ``Country``, ``Language``, ``Director``,
-    ``Movie`` i ``Series``; vincula ``Movie``/``Series`` a ``Platform`` via M2M.
+    ``Film`` i ``Serie``; vincula ``Film``/``Serie`` a ``Platform`` via M2M.
     """
     stats = {
         "platforms": 0,
@@ -260,7 +260,7 @@ def sync_catalog_from_apis() -> dict[str, Any]:
                     )
                     continue
 
-                obj, _ = Movie.objects.update_or_create(
+                obj, _ = Film.objects.update_or_create(
                     title=movie["title"],
                     defaults={
                         "synopsis": movie.get("synopsis") or None,
@@ -305,7 +305,7 @@ def sync_catalog_from_apis() -> dict[str, Any]:
                 else:
                     end_year = None
 
-                obj, _ = Series.objects.update_or_create(
+                obj, _ = Serie.objects.update_or_create(
                     title=ser["title"],
                     defaults={
                         "synopsis": ser.get("synopsis") or None,

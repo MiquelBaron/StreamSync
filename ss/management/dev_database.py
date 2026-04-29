@@ -12,24 +12,22 @@ from ss.models import (
     AgeRating,
     Country,
     Director,
+    Film,
     Genre,
     Language,
-    Movie,
     Platform,
-    Series,
+    Serie,
 )
+from ss.roles import ROLE_CONTENT_CONSUMER, ROLE_DEFINITIONS, ensure_role_groups, get_role_group
 
 
 def run_create_roles(stdout_write, style):
-    roles = [
-        "Consumidor de contingut",
-    ]
-    for role_name in roles:
+    for role_key, role_name in ROLE_DEFINITIONS.items():
         _, created = Group.objects.get_or_create(name=role_name)
         if created:
-            stdout_write(style.SUCCESS(f"Group '{role_name}' created correctly."))
+            stdout_write(style.SUCCESS(f"Group '{role_name}' created correctly (id='{role_key}')."))
         else:
-            stdout_write(style.WARNING(f"Group '{role_name}' already exists."))
+            stdout_write(style.WARNING(f"Group '{role_name}' already exists (id='{role_key}')."))
 
 
 def run_create_admin_user(stdout_write, style):
@@ -43,14 +41,12 @@ def run_create_admin_user(stdout_write, style):
         stdout_write(style.WARNING(f"Superuser '{username}' already exists."))
 
 
-CONSUMER_GROUP_NAME = "Consumidor de contingut"
-
-
 def run_create_consumer_user(stdout_write, style):
     User = get_user_model()
     username = "consumidor"
     password = "consumidor"
-    group, _ = Group.objects.get_or_create(name=CONSUMER_GROUP_NAME)
+    ensure_role_groups()
+    group = get_role_group(ROLE_CONTENT_CONSUMER)
     user, created = User.objects.get_or_create(
         username=username,
         defaults={"is_staff": False, "is_superuser": False},
@@ -63,8 +59,8 @@ def run_create_consumer_user(stdout_write, style):
         stdout_write(style.WARNING(f"User '{username}' already exists."))
     if not user.groups.filter(pk=group.pk).exists():
         user.groups.add(group)
-        stdout_write(style.SUCCESS(f"Role '{CONSUMER_GROUP_NAME}' assigned to '{username}'."))
+        stdout_write(style.SUCCESS(f"Role '{group.name}' assigned to '{username}'."))
     else:
-        stdout_write(style.WARNING(f"User '{username}' already has role '{CONSUMER_GROUP_NAME}'."))
+        stdout_write(style.WARNING(f"User '{username}' already has role '{group.name}'."))
 
 

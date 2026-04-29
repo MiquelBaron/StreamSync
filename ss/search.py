@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .models import Movie, Series, AgeRating
+from .models import Film, Serie, AgeRating
 
 
 @dataclass
@@ -13,9 +13,9 @@ class SearchCriteria:
 
 class DatabaseContentSearchService:
     def search(self, criteria: SearchCriteria) -> list:
-        movies = list(self._apply_filters(Movie.objects.all(), criteria))
-        series = list(self._apply_filters(Series.objects.all(), criteria))
-        combined_results = movies + series
+        films = list(self._apply_filters(Film.objects.all(), criteria))
+        series = list(self._apply_filters(Serie.objects.all(), criteria))
+        combined_results = films + series
         return sorted(combined_results, key=lambda item: item.title.lower())
 
 

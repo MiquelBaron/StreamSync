@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .forms import ContentSearchForm
-from .models import AgeRating, Country, Director, Genre, Language, Movie, Platform, Series
+from .models import AgeRating, Country, Director, Film, Genre, Language, Platform, Serie
 from .search import DatabaseContentSearchService, SearchCriteria
 
 
@@ -21,7 +21,7 @@ class SearchTests(TestCase):
         netflix = Platform.objects.create(name="Netflix")
         hbo = Platform.objects.create(name="HBO Max")
 
-        dune = Movie.objects.create(
+        dune = Film.objects.create(
             title="Dune",
             synopsis="Sci-fi epic",
             year=2021,
@@ -33,7 +33,7 @@ class SearchTests(TestCase):
         )
         dune.platforms.add(netflix)
 
-        duel = Movie.objects.create(
+        duel = Film.objects.create(
             title="El Duel",
             synopsis="Thriller",
             year=2020,
@@ -45,7 +45,7 @@ class SearchTests(TestCase):
         )
         duel.platforms.add(hbo)
 
-        mystery_series = Series.objects.create(
+        mystery_series = Serie.objects.create(
             title="El Laboratori",
             synopsis="Misteri",
             start_year=2023,

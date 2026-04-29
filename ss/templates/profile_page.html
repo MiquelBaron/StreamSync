@@ -1,4 +1,4 @@
-{% load static %}
+{% load static role_tags %}
 <!DOCTYPE html>
 <html lang="ca">
 <head>
@@ -41,7 +41,7 @@
             </div>
         </section>
         
-        {% if user.groups.all and user.groups.first and user.groups.first.name == "Consumidor de contingut" %}            <section class="profile-panel" aria-labelledby="favorite-content-title">
+        {% if user|has_role:"content_consumer" %}            <section class="profile-panel" aria-labelledby="favorite-content-title">
                 <div class="section-header profile-panel__header">
                     <div>
                         <h2 id="favorite-content-title">Gèneres preferits</h2>
