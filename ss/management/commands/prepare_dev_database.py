@@ -8,7 +8,9 @@ from django.core.management.base import BaseCommand
 from ss.management.dev_database import (
     run_create_admin_user,
     run_create_consumer_user,
+    run_create_platform_manager_user,
     run_create_roles,
+    run_populate_demo_visualizations,
 )
 
 
@@ -29,5 +31,11 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.MIGRATE_HEADING("Ensuring consumidor (Consumidor de contingut)..."))
         run_create_consumer_user(self.stdout.write, self.style)
+
+        self.stdout.write(self.style.MIGRATE_HEADING("Ensuring gestor (Gestor de plataformes)..."))
+        run_create_platform_manager_user(self.stdout.write, self.style)
+
+        self.stdout.write(self.style.MIGRATE_HEADING("Populating demo visualizations..."))
+        run_populate_demo_visualizations(self.stdout.write, self.style)
 
         self.stdout.write(self.style.SUCCESS("Dev database preparation finished."))

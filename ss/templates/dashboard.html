@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="register-visualization-url" content="{% url 'register_visualization' %}">
     <title>StreamSync · El teu catàleg en streaming</title>
     <link rel="stylesheet" href="{% static 'ss/css/streamsync-ui.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css">
@@ -80,7 +81,7 @@
     </div>
 </div>
 
-{% if not has_searched %}s
+{% if not has_searched %}
 <section class="nf-row" aria-labelledby="row-movies">
     <div class="nf-row__head">
         <div>
@@ -205,7 +206,39 @@
         menu.hidden = !menu.hidden;
     }
 
-    function simulateRedirect(platformName) {
+    function getCookie(name) {
+        const m = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
+        return m ? decodeURIComponent(m[2]) : "";
+    }
+
+    function getCsrfToken() {
+        return getCookie("csrftoken");
+    }
+
+    async function registerWatchAndRedirect(contentId, platformId, platformName) {
+        const url = document.querySelector('meta[name="register-visualization-url"]')?.content;
+        if (!url) {
+            alert("No s’ha pogut registrar la visualització (URL no configurada).");
+            return;
+        }
+        try {
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCsrfToken(),
+                },
+                body: JSON.stringify({ content_id: contentId, platform_id: platformId }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.ok) {
+                alert(data.error || "No s’ha pogut registrar la visualització.");
+                return;
+            }
+        } catch (e) {
+            alert("Error de xarxa en registrar la visualització.");
+            return;
+        }
         alert(`Redirigint a ${platformName}…\n(Simulació — en producció obrirà la plataforma real.)`);
     }
 

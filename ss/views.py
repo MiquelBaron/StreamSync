@@ -1,15 +1,35 @@
+import json
+
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from .forms import *
 from .models import *
-from .roles import ROLE_CONTENT_CONSUMER, ensure_role_groups, get_role_group, user_has_role
+from .roles import (
+    ROLE_CONTENT_CONSUMER,
+    ROLE_PLATFORM_MANAGER,
+    ensure_role_groups,
+    get_role_group,
+    user_has_role,
+)
 from .search import DatabaseContentSearchService, SearchCriteria
+from .services.platform_analytics import (
+    build_platform_report_data,
+    genre_clicks_chart_png_base64,
+    get_platform_for_platform_manager,
+)
+from .services.platform_pdf import render_html_to_pdf_bytes
+from .services.visualizations import register_visualization
 
 
 class CustomLoginView(LoginView):
@@ -37,6 +57,7 @@ class RegisterView(CreateView):
         return response
 
 
+@method_decorator(ensure_csrf_cookie, name="dispatch")
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "dashboard.html"
     login_url = "/login/"
@@ -118,6 +139,49 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
 def home_redirect(request):
     return redirect("/dashboard/")
+
+
+class RegisterVisualizationView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
+    def post(self, request, *args, **kwargs):
+        try:
+            body = json.loads(request.body.decode())
+            content_id = int(body["content_id"])
+            platform_id = int(body["platform_id"])
+        except (ValueError, KeyError, json.JSONDecodeError, TypeError):
+            return JsonResponse({"ok": False, "error": "Dades invàlides."}, status=400)
+        try:
+            register_visualization(request.user, content_id, platform_id)
+        except Content.DoesNotExist:
+            return JsonResponse({"ok": False, "error": "Contingut no trobat."}, status=404)
+        except ValueError as e:
+            return JsonResponse({"ok": False, "error": str(e)}, status=400)
+        return JsonResponse({"ok": True})
+
+
+class PlatformAnalyticsPdfView(LoginRequiredMixin, UserPassesTestMixin, View):
+    login_url = "/login/"
+    raise_exception = True
+
+    def test_func(self):
+        return user_has_role(self.request.user, ROLE_PLATFORM_MANAGER) and hasattr(
+            self.request.user, "plataformmanager"
+        )
+
+    def get(self, request, *args, **kwargs):
+        platform = get_platform_for_platform_manager(request.user)
+        report = build_platform_report_data(platform)
+        chart_b64 = genre_clicks_chart_png_base64(report.clicks_per_genre)
+        html = render_to_string(
+            "reports/platform_analytics_pdf.html",
+            {"report": report, "chart_b64": chart_b64},
+            request=request,
+        )
+        pdf_bytes = render_html_to_pdf_bytes(html)
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = 'attachment; filename="informe-plataforma.pdf"'
+        return response
 
 
 

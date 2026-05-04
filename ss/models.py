@@ -121,6 +121,7 @@ class Incidence(models.Model):
 
 
 class Visualization(models.Model):
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="visualizations")
     viewed_at = models.DateTimeField()
     content = models.ForeignKey(Content, on_delete=models.CASCADE, related_name="visualizations")

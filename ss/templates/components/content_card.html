@@ -164,8 +164,15 @@
                                 <p class="ss-platform-menu__label">Tria la plataforma:</p>
 
                                 {% for platform in platforms %}
-                                    <button class="ss-platform-menu__item"
-                                            onclick="simulateRedirect('{{ platform.name }}')">
+                                    <button type="button" class="ss-platform-menu__item"
+                                            data-content-id="{{ item.id }}"
+                                            data-platform-id="{{ platform.id }}"
+                                            data-platform-name="{{ platform.name }}"
+                                            onclick="registerWatchAndRedirect(
+                                                Number(this.dataset.contentId),
+                                                Number(this.dataset.platformId),
+                                                this.dataset.platformName
+                                            )">
                                         {{ platform.name }}
                                     </button>
                                 {% endfor %}
