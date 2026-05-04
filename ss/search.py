@@ -21,13 +21,17 @@ class DatabaseContentSearchService:
 
 
     def _apply_filters(self, queryset, criteria: SearchCriteria):
-        queryset = queryset.select_related(
-            "director",
-            "genre",
-            "age_rating",
-            "country",
-            "language",
-        ).prefetch_related("platforms")
+        queryset = (
+            queryset.filter(is_active=True)
+            .select_related(
+                "director",
+                "genre",
+                "age_rating",
+                "country",
+                "language",
+            )
+            .prefetch_related("platforms")
+        )
 
         if criteria.title:
             queryset = queryset.filter(title__icontains=criteria.title)

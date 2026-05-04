@@ -4,6 +4,17 @@ from django.db import models
 class Country(models.Model):
     name = models.CharField(max_length=100)
     iso_code = models.CharField(max_length=3, unique=True)
+    source_platform = models.CharField(max_length=64, blank=True, default="")
+    external_id = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source_platform", "external_id"],
+                name="uniq_ss_country_platform_extid",
+                condition=models.Q(external_id__isnull=False),
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -41,29 +52,76 @@ class Genre(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    source_platform = models.CharField(max_length=64, blank=True, default="")
+    external_id = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source_platform", "external_id"],
+                name="uniq_ss_genre_platform_extid",
+                condition=models.Q(external_id__isnull=False),
+            ),
+        ]
 
     def __str__(self):
         return self.name
+
 
 class Director(models.Model):
     name = models.CharField(max_length=150)
     birth_date = models.DateField(blank=True, null=True)
     country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True)
     created_at = models.DateField(auto_now_add=True)  # solo día/mes/año
+    source_platform = models.CharField(max_length=64, blank=True, default="")
+    external_id = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source_platform", "external_id"],
+                name="uniq_ss_director_platform_extid",
+                condition=models.Q(external_id__isnull=False),
+            ),
+        ]
 
     def __str__(self):
         return self.name
 
+
 class AgeRating(models.Model):
     description = models.CharField(max_length=50)
     minimum_age = models.IntegerField()
+    source_platform = models.CharField(max_length=64, blank=True, default="")
+    external_id = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source_platform", "external_id"],
+                name="uniq_ss_agerating_platform_extid",
+                condition=models.Q(external_id__isnull=False),
+            ),
+        ]
 
     def __str__(self):
         return f"{self.description} ({self.minimum_age}+)"
 
+
 class Language(models.Model):
     name = models.CharField(max_length=50)
     iso_code = models.CharField(max_length=3, unique=True)
+    source_platform = models.CharField(max_length=64, blank=True, default="")
+    external_id = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source_platform", "external_id"],
+                name="uniq_ss_language_platform_extid",
+                condition=models.Q(external_id__isnull=False),
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -80,6 +138,9 @@ class Content(models.Model):
     language = models.ForeignKey(Language, on_delete=models.PROTECT)
     age_rating = models.ForeignKey(AgeRating, on_delete=models.PROTECT)
     expires_at = models.DateTimeField(null=True, blank=True)
+    sync_external_ref = models.CharField(max_length=320, unique=True, null=True, blank=True, db_index=True)
+    is_active = models.BooleanField(default=True)
+    last_seen = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -88,6 +149,7 @@ class Content(models.Model):
 class Film(Content):
     year = models.IntegerField()
     release_date = models.DateField(blank=True, null=True)
+    duration_minutes = models.PositiveIntegerField(null=True, blank=True)
 
 
 class Serie(Content):
@@ -121,6 +183,7 @@ class Incidence(models.Model):
 
 
 class Visualization(models.Model):
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="visualizations")
     viewed_at = models.DateTimeField()
     content = models.ForeignKey(Content, on_delete=models.CASCADE, related_name="visualizations")

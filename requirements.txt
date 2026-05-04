@@ -1,2 +1,4 @@
 Django>=4.2,<5.0
 requests>=2.31.0,<3.0.0
+xhtml2pdf>=0.2.15
+matplotlib>=3.8.0
