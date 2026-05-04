@@ -1,20 +1,17 @@
 """
 Pasos reutilizables para preparar la base de datos de desarrollo.
-Los comandos create_roles, create_admin_user y populate_demo_data delegan aquí.
+prepare_dev_database, populate_db y comandos relacionados delegan aquí.
 """
-from datetime import date, timedelta
+from datetime import timedelta
+import random
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.utils import timezone
 
 from ss.models import (
-    AgeRating,
-    Country,
-    Director,
+    ContentConsumer,
     Film,
-    Genre,
-    Language,
     Platform,
     PlataformManager,
     Serie,
@@ -23,7 +20,9 @@ from ss.models import (
 from ss.roles import (
     ROLE_CONTENT_CONSUMER,
     ROLE_DEFINITIONS,
+    ROLE_GENERAL_DIRECTOR,
     ROLE_PLATFORM_MANAGER,
+    ROLE_TECHNICAL_ADMIN,
     ensure_role_groups,
     get_role_group,
 )
@@ -50,14 +49,49 @@ def run_create_admin_user(stdout_write, style):
 
 
 def run_create_consumer_user(stdout_write, style):
+    """
+    Create the demo consumer as ContentConsumer from the start.
+
+    Creating a plain User and then adding the consumer group triggers
+    sync_content_consumer_profile, which calls ContentConsumer.objects.create(user_ptr_id=...).
+    That can insert a second auth_user row and violate UNIQUE(username). Using ContentConsumer
+    directly avoids the signal trying to create a duplicate profile.
+    """
     User = get_user_model()
     username = "consumidor"
     password = "consumidor"
     ensure_role_groups()
     group = get_role_group(ROLE_CONTENT_CONSUMER)
+
+    if ContentConsumer.objects.filter(username=username).exists():
+        user = ContentConsumer.objects.get(username=username)
+        stdout_write(style.WARNING(f"User '{username}' already exists."))
+    else:
+        User.objects.filter(username=username).delete()
+        user = ContentConsumer.objects.create_user(
+            username=username,
+            password=password,
+            is_staff=False,
+            is_superuser=False,
+        )
+        stdout_write(style.SUCCESS(f"User '{username}' created (password: {password})."))
+
+    if not user.groups.filter(pk=group.pk).exists():
+        user.groups.add(group)
+        stdout_write(style.SUCCESS(f"Role '{group.name}' assigned to '{username}'."))
+    else:
+        stdout_write(style.WARNING(f"User '{username}' already has role '{group.name}'."))
+
+
+def run_create_technical_admin_user(stdout_write, style):
+    User = get_user_model()
+    username = "admin_tecnic"
+    password = "devpass"
+    ensure_role_groups()
+    group = get_role_group(ROLE_TECHNICAL_ADMIN)
     user, created = User.objects.get_or_create(
         username=username,
-        defaults={"is_staff": False, "is_superuser": False},
+        defaults={"is_staff": True, "is_superuser": False},
     )
     if created:
         user.set_password(password)
@@ -72,41 +106,81 @@ def run_create_consumer_user(stdout_write, style):
         stdout_write(style.WARNING(f"User '{username}' already has role '{group.name}'."))
 
 
-def run_create_platform_manager_user(stdout_write, style):
-    username = "gestor"
-    password = "gestor"
+def run_create_general_director_user(stdout_write, style):
+    User = get_user_model()
+    username = "director_general"
+    password = "devpass"
     ensure_role_groups()
-    platform = Platform.objects.order_by("pk").first()
-    if not platform:
-        stdout_write(style.WARNING("No hi ha cap plataforma; no es crea l'usuari gestor."))
-        return
-    group = get_role_group(ROLE_PLATFORM_MANAGER)
-    existing = PlataformManager.objects.filter(username=username).first()
-    if existing:
-        stdout_write(style.WARNING(f"User '{username}' (gestor) already exists."))
-        if not existing.groups.filter(pk=group.pk).exists():
-            existing.groups.add(group)
-            stdout_write(style.SUCCESS(f"Role '{group.name}' assigned to '{username}'."))
-        return
-    pm = PlataformManager(
-        platform=platform,
+    group = get_role_group(ROLE_GENERAL_DIRECTOR)
+    user, created = User.objects.get_or_create(
         username=username,
-        is_staff=False,
-        is_superuser=False,
+        defaults={"is_staff": True, "is_superuser": False},
     )
-    pm.set_password(password)
-    pm.save()
-    pm.groups.add(group)
-    stdout_write(
-        style.SUCCESS(
-            f"Gestor '{username}' creat (contrasenya: {password}) a la plataforma '{platform.name}'."
+    if created:
+        user.set_password(password)
+        user.save()
+        stdout_write(style.SUCCESS(f"User '{username}' created (password: {password})."))
+    else:
+        stdout_write(style.WARNING(f"User '{username}' already exists."))
+    if not user.groups.filter(pk=group.pk).exists():
+        user.groups.add(group)
+        stdout_write(style.SUCCESS(f"Role '{group.name}' assigned to '{username}'."))
+    else:
+        stdout_write(style.WARNING(f"User '{username}' already has role '{group.name}'."))
+
+
+def run_create_platform_managers_for_all_platforms(stdout_write, style):
+    """One PlataformManager per Platform; username gestor_<id>, password devpass."""
+    ensure_role_groups()
+    group = get_role_group(ROLE_PLATFORM_MANAGER)
+    platforms = list(Platform.objects.order_by("pk"))
+    if not platforms:
+        stdout_write(style.WARNING("No hi ha cap plataforma; no es creen gestors (executa sync_catalog abans)."))
+        return
+    password = "devpass"
+    for platform in platforms:
+        username = f"gestor_{platform.pk}"
+        existing = PlataformManager.objects.filter(username=username).first()
+        if existing:
+            if existing.platform_id != platform.pk:
+                existing.platform = platform
+                existing.save(update_fields=["platform"])
+            if not existing.groups.filter(pk=group.pk).exists():
+                existing.groups.add(group)
+                stdout_write(style.SUCCESS(f"Role '{group.name}' assigned to '{username}'."))
+            else:
+                stdout_write(style.WARNING(f"Gestor '{username}' already exists for '{platform.name}'."))
+            continue
+        pm = PlataformManager(
+            platform=platform,
+            username=username,
+            is_staff=False,
+            is_superuser=False,
         )
-    )
+        pm.set_password(password)
+        pm.save()
+        pm.groups.add(group)
+        stdout_write(
+            style.SUCCESS(
+                f"Gestor '{username}' creat (contrasenya: {password}) — plataforma '{platform.name}'."
+            )
+        )
+
+
+def run_populate_dev_users(stdout_write, style):
+    """Un usuari de prova per cada rol; gestors: un per plataforma (després de sync_catalog)."""
+    stdout_write(style.MIGRATE_HEADING("Usuari consumidor..."))
+    run_create_consumer_user(stdout_write, style)
+    stdout_write(style.MIGRATE_HEADING("Usuari administrador tècnic..."))
+    run_create_technical_admin_user(stdout_write, style)
+    stdout_write(style.MIGRATE_HEADING("Usuari director general..."))
+    run_create_general_director_user(stdout_write, style)
+    stdout_write(style.MIGRATE_HEADING("Gestors de plataforma (un per plataforma)..."))
+    run_create_platform_managers_for_all_platforms(stdout_write, style)
 
 
 def run_populate_demo_visualizations(stdout_write, style):
-    from random import choice
-
+    """~100 visualitzacions aleatòries (contingut, plataforma, usuari, instant)."""
     User = get_user_model()
     contents: list = []
     for model in (Film, Serie):
@@ -119,39 +193,29 @@ def run_populate_demo_visualizations(stdout_write, style):
     if not contents:
         stdout_write(
             style.WARNING(
-                "Cap pel·lícula o sèrie amb plataformes: executa sync_catalog abans o omet visualitzacions."
+                "Cap pel·lícula o sèrie amb plataformes: executa sync_catalog i populate_db."
             )
         )
         return
 
-    for idx in range(3):
-        demo_name = f"viewer_demo_{idx}"
-        u, created = User.objects.get_or_create(
-            username=demo_name,
-            defaults={"is_staff": False, "is_superuser": False},
-        )
-        if created:
-            u.set_password("viewer_demo")
-            u.save()
-            stdout_write(style.SUCCESS(f"Usuari demo '{demo_name}' creat (contrasenya: viewer_demo)."))
-
-    users = list(
-        User.objects.filter(is_superuser=False).exclude(username__in=["admin", "gestor"])
-    )
+    users = list(User.objects.filter(is_superuser=False))
     if not users:
         stdout_write(style.WARNING("Cap usuari per generar visualitzacions."))
         return
 
     base_ts = timezone.now()
     n = 0
-    for i in range(120):
-        user = choice(users)
-        content = choice(contents)
+    for i in range(100):
+        user = random.choice(users)
+        content = random.choice(contents)
         platforms = list(content.platforms.all())
         if not platforms:
             continue
-        platform = choice(platforms)
-        viewed_at = base_ts - timedelta(seconds=i + 1, microseconds=(i * 7919) % 999_999)
+        platform = random.choice(platforms)
+        viewed_at = base_ts - timedelta(
+            seconds=i + 1,
+            microseconds=random.randint(0, 999_999),
+        )
         Visualization.objects.create(
             user=user,
             viewed_at=viewed_at,
@@ -160,6 +224,4 @@ def run_populate_demo_visualizations(stdout_write, style):
             platform=platform,
         )
         n += 1
-    stdout_write(style.SUCCESS(f"S'han creat {n} visualitzacions demo."))
-
-
+    stdout_write(style.SUCCESS(f"S'han creat {n} visualitzacions demo (aleatòries)."))

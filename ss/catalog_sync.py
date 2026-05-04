@@ -1,7 +1,7 @@
 """
-Sincronitza els models de catàleg (Film, Serie i FKs) des de ``ss.services``.
+Sincronitza els models de catàleg (Film, Serie i FKs) des de ``ss.catalog_api``.
 
-Flux (per cada clau de ``services.PLATFORMS``): es criden ``get_all_movies()`` i
+Flux (per cada clau de ``catalog_api.PLATFORMS``): es criden ``get_all_movies()`` i
 ``get_all_series()`` (dict per plataforma), i ``get_genres``, ``get_age_ratings``,
 ``get_directors`` per construir mapes d'IDs remots → instàncies locals. No es suposen
 llistes globals de països/idiomes: es fa servir ``get_country_row`` / ``get_language_row``
@@ -20,7 +20,7 @@ from typing import Any
 from django.db import transaction
 from django.utils.dateparse import parse_date, parse_datetime
 
-from ss import services
+from ss import catalog_api as services
 from ss.models import AgeRating, Country, Director, Film, Genre, Language, Platform, Serie
 
 
@@ -215,7 +215,7 @@ def _resolve_language(
 
 def sync_catalog_from_apis() -> dict[str, Any]:
     """
-    Descarrega dades amb ``services.get_all_movies()``, ``get_all_series()`` i,
+    Descarrega dades amb ``catalog_api.get_all_movies()``, ``get_all_series()`` i,
     per plataforma, ``get_genres`` / ``get_age_ratings`` / ``get_directors``.
 
     Upserta ``Genre``, ``AgeRating``, ``Country``, ``Language``, ``Director``,

@@ -26,16 +26,37 @@ Amb l’entorn virtual activat, des de l’arrel del projecte:
 python manage.py prepare_dev_database
 ```
 
-Aquesta comanda fa el següent, en aquest ordre: aplica les **migracions**, crea el grup **Consumidor de contingut**, assegura un **superusuari** `admin` / `admin` i crea l’usuari **consumidor** / **consumidor** amb aquest rol.
+Aquesta comanda aplica les **migracions**, crea els **grups de tots els rols** definits a l’aplicació i assegura el **superusuari** `admin` / `admin`. No crea encara usuaris de prova ni dades d’analítica (això va després del catàleg).
 
-Els comandaments individuals `create_roles` i `create_admin_user` encara es poden cridar per separat si cal, però el flux habitual és només el d’abans.
+Flux recomanat, en ordre:
 
-Després per sincronitzar el catàleg, executar la comanda:
+1. `python manage.py prepare_dev_database` — migracions + rols + `admin` / `admin`
+2. `python manage.py sync_catalog` — catàleg des de les APIs (cal tenir l’API aixecada)
+3. `python manage.py populate_db` — usuaris de prova (un per cada rol; **un gestor per plataforma** amb nom `gestor_<id_plataforma>`) i **100 visualitzacions** aleatòries
+
+Contrasenyes de prova després de `populate_db` (excepte `admin`):
+
+| Usuari | Contrasenya | Rol |
+|--------|----------------|-----|
+| `consumidor` | `consumidor` | Consumidor de contingut |
+| `admin_tecnic` | `devpass` | Administrador tècnic |
+| `director_general` | `devpass` | Director general |
+| `gestor_<id>` | `devpass` | Gestor de plataformes (una compta per plataforma) |
+
+Els comandaments individuals `create_roles` i `create_admin_user` encara es poden cridar per separat si cal.
+
+Per sincronitzar el catàleg:
 
 ```bash
 python manage.py sync_catalog
 ```
 >Obviament s'ha de tenir l'API aixecada per poder sincronitzar.
+
+Per omplir usuaris de prova i visualitzacions (després del sync):
+
+```bash
+python manage.py populate_db
+```
 
 ---
 
