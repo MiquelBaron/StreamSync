@@ -83,7 +83,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             Film.objects
             .select_related("director", "genre", "age_rating", "country", "language")
             .prefetch_related("platforms")
-            .filter(rating__isnull=False)
+            .filter(is_active=True, rating__isnull=False)
             .order_by("-rating")[:10]
         )
 
@@ -91,7 +91,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             Serie.objects
             .select_related("director", "genre", "age_rating", "country", "language")
             .prefetch_related("platforms")
-            .filter(rating__isnull=False)
+            .filter(is_active=True, rating__isnull=False)
             .order_by("-rating")[:10]
         )
 

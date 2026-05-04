@@ -34,7 +34,7 @@ class PlatformReportData:
 
 
 def build_platform_report_data(platform) -> PlatformReportData:
-    base = Visualization.objects.filter(platform=platform)
+    base = Visualization.objects.filter(platform=platform, content__is_active=True)
     total = base.count()
     film_visualizations = base.filter(content__film__isnull=False).count()
     serie_visualizations = base.filter(content__serie__isnull=False).count()

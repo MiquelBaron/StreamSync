@@ -20,43 +20,76 @@ pip install -r requirements.txt
 
 ## Preparació de la base de dades (desenvolupament)
 
-Amb l’entorn virtual activat, des de l’arrel del projecte:
+En desenvolupament el flux es divideix en **tres comandaments** que cal executar **en aquest ordre**. El primer prepara només l’esquema i els rols; el segon omple el catàleg des de les APIs externes; el tercer crea usuaris de prova i dades d’analítica que depenen del catàleg.
+
+### 1. `prepare_dev_database`
 
 ```bash
 python manage.py prepare_dev_database
 ```
 
-Aquesta comanda aplica les **migracions**, crea els **grups de tots els rols** definits a l’aplicació i assegura el **superusuari** `admin` / `admin`. No crea encara usuaris de prova ni dades d’analítica (això va després del catàleg).
+**Què fa:**
 
-Flux recomanat, en ordre:
+- Aplica totes les **migracions** de Django.
+- Crea els **grups de rol** de l’aplicació (Consumidor de contingut, Administrador tècnic, Director general, Gestor de plataformes).
+- Assegura un **superusuari** per accedir a l’admin de Django: usuari `admin`, contrasenya `admin`.
 
-1. `python manage.py prepare_dev_database` — migracions + rols + `admin` / `admin`
-2. `python manage.py sync_catalog` — catàleg des de les APIs (cal tenir l’API aixecada)
-3. `python manage.py populate_db` — usuaris de prova (un per cada rol; **un gestor per plataforma** amb nom `gestor_<id_plataforma>`) i **100 visualitzacions** aleatòries
+**Què no fa:** no descarrega pel·lícules ni sèries, no crea usuaris de prova amb rols ni visualitzacions. És el pas mínim per tenir una base buida però consistent.
 
-Contrasenyes de prova després de `populate_db` (excepte `admin`):
+---
 
-| Usuari | Contrasenya | Rol |
-|--------|----------------|-----|
-| `consumidor` | `consumidor` | Consumidor de contingut |
-| `admin_tecnic` | `devpass` | Administrador tècnic |
-| `director_general` | `devpass` | Director general |
-| `gestor_<id>` | `devpass` | Gestor de plataformes (una compta per plataforma) |
-
-Els comandaments individuals `create_roles` i `create_admin_user` encara es poden cridar per separat si cal.
-
-Per sincronitzar el catàleg:
+### 2. `sync_catalog`
 
 ```bash
 python manage.py sync_catalog
 ```
->Obviament s'ha de tenir l'API aixecada per poder sincronitzar.
 
-Per omplir usuaris de prova i visualitzacions (després del sync):
+**Què fa:**
+
+- Llegeix les dades de les **APIs de les plataformes** configurades al projecte (vegeu `ss/catalog_api.py`: claus `platform1`, `platform2`, etc.).
+- Omple o actualitza el catàleg local: plataformes, gèneres, directors, valoracions d’edat, pel·lícules, sèries i relacions amb plataformes.
+
+**Requisit:** les APIs han d’estar **aixecades i accessibles** (per defecte `localhost` amb els ports definits al codi). Si no responen, el sync pot acabar sense errors greus però amb pocs o cap contingut.
+
+---
+
+### 3. `populate_db`
 
 ```bash
 python manage.py populate_db
 ```
+
+**Què fa:**
+
+- Crea **un usuari de prova per cada tipus de rol** (excepte el superusuari, que ja és `admin`).
+- Per al rol **Gestor de plataformes**, crea **un usuari per cada plataforma** que hi hagi a la base després del `sync_catalog`, amb nom d’usuari `gestor_<id>` (on `<id>` és la clau primària de la fila `Platform` a la base de dades).
+- Genera **100 visualitzacions de prova** aleatòries (usuari, contingut, plataforma i data), útils per provar cerques, informes PDF de gestor, etc.
+
+Cal haver executat abans **`sync_catalog`** perquè hi hagi plataformes i continguts; si no, els gestors no es poden crear per plataforma i les visualitzacions no es generen correctament.
+
+Cada vegada que executes `populate_db` s’afegeixen **100 visualitzacions més** (no es buiden les anteriors). Els usuaris de prova es creen de forma idempotent (`get_or_create`): si ja existeixen, es reutilitzen i només s’actualitzen rols o plataformes si cal.
+
+---
+
+### Usuaris i contrasenyes de prova
+
+Després de `populate_db` pots iniciar sessió al web amb aquests comptes (el superusuari `admin` / `admin` ja existeix des del pas 1):
+
+| Usuari | Contrasenya | Rol / ús |
+|--------|---------------|----------|
+| `admin` | `admin` | Superusuari (Django admin); no té necessàriament els grups de rol de l’app |
+| `consumidor` | `consumidor` | Consumidor de contingut (perfil consumidor, preferències, etc.) |
+| `admin_tecnic` | `devpass` | Administrador tècnic |
+| `director_general` | `devpass` | Director general |
+| `gestor_<id>` | `devpass` | Gestor de plataformes: cada un està vinculat a **una** plataforma concreta (exportació PDF d’informe només per aquella plataforma) |
+
+Exemple: si després del sync tens tres plataformes amb `id` 1, 2 i 3, tindràs `gestor_1`, `gestor_2` i `gestor_3`, tots amb contrasenya `devpass`.
+
+---
+
+### Comandaments auxiliars
+
+Encara pots cridar per separat `create_roles` i `create_admin_user` si només vols actualitzar rols o l’usuari admin sense repetir tot el flux.
 
 ---
 
