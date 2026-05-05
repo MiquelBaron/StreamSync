@@ -23,10 +23,10 @@ from .roles import (
     user_has_role,
 )
 from .search import DatabaseContentSearchService, SearchCriteria
-from .services.platform_analytics import (
+from .analytics.helpers import get_platform_for_platform_manager
+from .analytics.report import (
     build_platform_report_data,
     genre_clicks_chart_png_base64,
-    get_platform_for_platform_manager,
 )
 from .services.platform_pdf import render_html_to_pdf_bytes
 from .services.visualizations import register_visualization

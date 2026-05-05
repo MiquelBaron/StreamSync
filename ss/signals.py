@@ -6,7 +6,7 @@ from .models import ContentConsumer
 from .roles import ROLE_CONTENT_CONSUMER, get_role_group
 
 @receiver(m2m_changed, sender=User.groups.through)
-def sync_content_consumer_profile(sender, instance, action, pk_set, **kwargs):
+def sync_user_role_profiles(sender, instance, action, pk_set, **kwargs):
     if action not in {"post_add", "post_remove", "post_clear"}:
         return
 
@@ -20,7 +20,6 @@ def sync_content_consumer_profile(sender, instance, action, pk_set, **kwargs):
     if action == "post_add" and pk_set and consumer_group.pk in pk_set:
         if not ContentConsumer.objects.filter(pk=instance.pk).exists():
             ContentConsumer.objects.create(user_ptr_id=instance.pk)
-        return
 
     has_consumer_role = instance.groups.filter(pk=consumer_group.pk).exists()
     if not has_consumer_role:
