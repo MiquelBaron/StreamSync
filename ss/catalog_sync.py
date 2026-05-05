@@ -458,6 +458,29 @@ def _resolve_movie_age_rating_and_decimal(
     return age_rating, content_rating
 
 
+def _movie_unified_ref(movie: dict) -> str | None:
+    """Genera una referència estable perquè la mateixa pel·lícula no es dupliqui per plataforma."""
+    title = str(movie.get("title") or "").strip()
+    if not title:
+        return None
+    year_raw = movie.get("year")
+    try:
+        year = int(year_raw) if year_raw not in (None, "") else 0
+    except (TypeError, ValueError):
+        year = 0
+    release_date = str(movie.get("release_date") or "").strip()
+    normalized = " ".join(title.lower().split())
+    return f"movie:{normalized}|{year}|{release_date}"
+
+
+def _merge_duplicate_films(film: Film):
+    """Fusiona possibles duplicats deixant una sola instància i acumulant plataformes."""
+    duplicates = Film.objects.filter(title=film.title, year=film.year).exclude(pk=film.pk).prefetch_related("platforms")
+    for dup in duplicates:
+        film.platforms.add(*dup.platforms.all())
+        dup.delete()
+
+
 def sync_catalog_from_apis() -> dict[str, Any]:
     stats: dict[str, Any] = {
         "platforms": 0,
@@ -488,7 +511,10 @@ def sync_catalog_from_apis() -> dict[str, Any]:
                 if not isinstance(movie, dict) or movie.get("id") is None:
                     continue
                 ext_id = int(movie["id"])
-                ref = f"{platform_slug}:movie:{ext_id}"
+                ref = _movie_unified_ref(movie)
+                if ref is None:
+                    stats["errors"].append(f"Pel·lícula sense títol (id={ext_id}, {platform_slug}).")
+                    continue
                 seen_movie_refs.add(ref)
 
                 genre = _resolve_genre(platform_slug, movie, genre_map)
@@ -506,7 +532,7 @@ def sync_catalog_from_apis() -> dict[str, Any]:
                 if not base_title:
                     stats["errors"].append(f"Pel·lícula sense títol (id={ext_id}, {platform_slug}).")
                     continue
-                title = _unique_title_for_content(base_title, ref)
+                title = base_title[:255]
 
                 dm_raw = movie.get("duration_minutes")
                 duration_minutes = None
@@ -535,7 +561,8 @@ def sync_catalog_from_apis() -> dict[str, Any]:
                         "is_active": True,
                     },
                 )
-                film.platforms.set([platform_obj])
+                film.platforms.add(platform_obj)
+                _merge_duplicate_films(film)
                 stats["movies_upserted"] += 1
 
             for ser in series_by_platform.get(platform_slug) or []:

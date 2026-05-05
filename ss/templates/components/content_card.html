@@ -156,7 +156,7 @@
 
                         <div class="ss-modal__watch-btn-wrap">
                             <button class="ss-btn-watch"
-                                    onclick="togglePlatformMenu('watch-menu-{{ item.id }}')">
+                                    onclick="{% if user.is_authenticated %}togglePlatformMenu('watch-menu-{{ item.id }}'){% else %}window.location.href='{% url 'login' %}'{% endif %}">
                                 ▶ Veure
                             </button>
 

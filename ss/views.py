@@ -58,7 +58,7 @@ class RegisterView(CreateView):
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
-class DashboardView(LoginRequiredMixin, TemplateView):
+class DashboardView(TemplateView):
     template_name = "dashboard.html"
     login_url = "/login/"
 

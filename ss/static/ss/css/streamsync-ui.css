@@ -138,9 +138,7 @@ body.nf-body {
     align-items: center;
 }
 
-.nf-btn-signout:hover {
-    background: var(--nf-red-hover);
-}
+
 
 /* —— Hero + cerca —— */
 .nf-hero {
@@ -1103,4 +1101,6 @@ body.auth-page {
     font-size: 0.75rem;
     opacity: 0.7;
 }
+
+
 

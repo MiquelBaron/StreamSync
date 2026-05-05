@@ -9,9 +9,11 @@
                 Inici
             </a>
 
+            {% if user.is_authenticated %}
             <a class="nf-nav__link" href="{% url 'profile' %}">
                 Perfil
             </a>
+            {% endif %}
 
             {% if user|has_role:"content_consumer" %}
                 <a class="nf-nav__link nf-nav__link--highlight" href="{% url 'preferences' %}">
@@ -26,7 +28,7 @@
             {% endif %}
         </nav>
     </div>
-
+    {% if user.is_authenticated %}
     <div class="nf-header__right">
         <div class="nf-profile">
 
@@ -54,4 +56,13 @@
             </a>
         </div>
     </div>
+    {% else %}
+    <div class="nf-header__right">
+        <a class="nf-btn-signout" href="{% url 'login' %}">
+            Iniciar sessió
+        </a>
+    </div>
+    
+    {% endif %}
+
 </header>
