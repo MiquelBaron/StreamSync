@@ -12,6 +12,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
+from itertools import chain
 
 from .forms import *
 from .models import *
@@ -94,6 +95,34 @@ class DashboardView(TemplateView):
             .filter(is_active=True, rating__isnull=False)
             .order_by("-rating")[:10]
         )
+        preferred_content = []
+        is_content_consumer = self.request.user.groups.filter(
+            name="Consumidor de contingut"
+        ).exists()
+
+        if is_content_consumer:
+            profile, _ = ContentConsumer.objects.get_or_create(user=self.request.user)
+            preferred_genres = profile.preferred_genres.all()
+
+            if preferred_genres.exists():
+                preferred_movies = (
+                    Movie.objects.select_related("director", "genre", "age_rating")
+                    .prefetch_related("platforms")
+                    .filter(genre__in=preferred_genres)
+                    .order_by("title")[:6]
+                )
+
+                preferred_series = (
+                    Series.objects.select_related("director", "genre", "age_rating")
+                    .prefetch_related("platforms")
+                    .filter(genre__in=preferred_genres)
+                    .order_by("title")[:6]
+                )
+
+                preferred_content = sorted(
+                    chain(preferred_movies, preferred_series),
+                    key=lambda item: item.title
+                )[:10]
 
         context["has_searched"] = has_searched
         context["search_form"] = form
@@ -101,6 +130,9 @@ class DashboardView(TemplateView):
         context["featured_movies"] = featured_movies
         context["featured_series"] = featured_series
         context["director_suggestions"] = Director.objects.order_by("name").values_list("name", flat=True)
+
+        context["is_content_consumer"] = is_content_consumer
+        context["preferred_content"] = preferred_content
 
         return context
 
