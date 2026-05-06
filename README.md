@@ -18,6 +18,27 @@ Instal·la les dependències del projecte:
 pip install -r requirements.txt
 ```
 
+## Docker
+
+Des de l’arrel del repositori (cal [Docker Compose](https://docs.docker.com/compose/) v2):
+
+```bash
+docker compose build
+docker compose up
+```
+
+L’app queda exposada en **http://localhost:8000** (o `127.0.0.1:8000`). **No obrís `http://0.0.0.0:8000`** al navegador: no és una URL vàlida per al client i Chrome pot donar errors de seguretat o `chrome-error://…`. La primera vegada:
+
+```bash
+docker compose exec web python manage.py prepare_dev_database
+docker compose exec web python manage.py sync_catalog
+docker compose exec web python manage.py populate_db
+```
+
+- La base **`db.sqlite3` es guarda en un volum** Docker (`DJANGO_SQLITE_PATH=/data/db.sqlite3`), independent del sistema de fitxers del contenidor.
+- Les crides cap a les APIs externes usen **`CATALOG_API_HOST=host.docker.internal`** (compose defineix també `extra_hosts: host.docker.internal:host-gateway` per funcionar en Linux). Les APIs han d’estar escoltant als mateixos ports definits a `ss/catalog_api.py`.
+- Variables útils (sobreescriure al `environment` del servei o amb un `.env` carregat per Compose): `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `CATALOG_API_HOST`.
+
 ## Preparació de la base de dades (desenvolupament)
 
 En desenvolupament el flux es divideix en **tres comandaments** que cal executar **en aquest ordre**. El primer prepara només l’esquema i els rols; el segon omple el catàleg des de les APIs externes; el tercer crea usuaris de prova i dades d’analítica que depenen del catàleg.

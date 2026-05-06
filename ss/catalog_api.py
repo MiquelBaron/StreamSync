@@ -1,5 +1,9 @@
+import os
+
 import requests
 
+# Des de Docker les APIs als ports del host han d'utilitzar p.ex. ``host.docker.internal``
+# (vegeu ``docker-compose.yml``). Variable opcional ``CATALOG_API_HOST``.
 PLATFORMS = {
     "platform1": {"api_key": "a8f3d91c7e4b2f0a1d9c3e7b6a5f8c2d", "port": 8080},
     "platform2": {"api_key": "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8", "port": 8081},
@@ -14,7 +18,8 @@ def get_api_key(platform):
 
 def get_base_url(platform):
     port = PLATFORMS.get(platform, {}).get("port")
-    return f"http://localhost:{port}"
+    host = os.environ.get("CATALOG_API_HOST", "localhost").strip() or "localhost"
+    return f"http://{host}:{port}"
 
 def _get(platform, endpoint):
     """Crida genèrica GET. Retorna llista o [] si falla."""

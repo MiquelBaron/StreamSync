@@ -10,6 +10,7 @@ Alineació amb l'esquema publicat:
 - ``Movie``: ``duration_minutes`` es persisteix a ``Film.duration_minutes``.
 - ``Serie``: només ``id`` i ``title`` al schema; la resta de FKs es resolen amb placeholders
   o mapes dels endpoints quan hi hagi ``*_id``.
+- ``Serie`` es deduplica entre plataformes com ``Film``: una instància i ``platforms`` many-to-many.
 
 Flux per plataforma: endpoints de referència → ``movies``/``series`` → mirall suau ``is_active``.
 """
@@ -26,7 +27,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
 
 from ss import catalog_api as services
-from ss.models import AgeRating, Content, Country, Director, Film, Genre, Language, Platform, Serie
+from ss.models import AgeRating, Country, Director, Film, Genre, Language, Platform, Serie
 
 
 def _parse_api_date(value: Any):
@@ -434,14 +435,6 @@ def _placeholder_country(platform_slug: str) -> Country:
     return obj
 
 
-def _unique_title_for_content(base: str, sync_ref: str) -> str:
-    t = (base or "Sense títol").strip()[:240]
-    if Content.objects.filter(title=t).exclude(sync_external_ref=sync_ref).exists():
-        suffix = f" [{sync_ref}]"
-        t = ((base or "Sense títol").strip()[: 255 - len(suffix)]) + suffix
-    return t[:255]
-
-
 def _resolve_movie_age_rating_and_decimal(
     platform_slug: str, movie: dict
 ) -> tuple[AgeRating | None, Any]:
@@ -478,6 +471,44 @@ def _merge_duplicate_films(film: Film):
     duplicates = Film.objects.filter(title=film.title, year=film.year).exclude(pk=film.pk).prefetch_related("platforms")
     for dup in duplicates:
         film.platforms.add(*dup.platforms.all())
+        dup.delete()
+
+
+def _series_unified_ref(ser: dict) -> str | None:
+    """Referència estable perquè la mateixa sèrie no es dupliqui per plataforma (com ``_movie_unified_ref``)."""
+    title = str(ser.get("title") or "").strip()
+    if not title:
+        return None
+    start_raw = ser.get("start_year")
+    try:
+        start_year = int(start_raw) if start_raw not in (None, "") else 0
+    except (TypeError, ValueError):
+        start_year = 0
+    end_raw = ser.get("end_year")
+    end_part = ""
+    if end_raw is not None and end_raw != "":
+        try:
+            end_part = str(int(end_raw))
+        except (TypeError, ValueError):
+            end_part = str(end_raw).strip()
+    ts_raw = ser.get("total_seasons")
+    try:
+        total_seasons = int(ts_raw) if ts_raw not in (None, "") else 0
+    except (TypeError, ValueError):
+        total_seasons = 0
+    normalized = " ".join(title.lower().split())
+    return f"series:{normalized}|{start_year}|{end_part}|{total_seasons}"
+
+
+def _merge_duplicate_series(serie: Serie):
+    """Fusiona duplicats per títol i any d'inici (paral·lel a ``_merge_duplicate_films``)."""
+    duplicates = (
+        Serie.objects.filter(title=serie.title, start_year=serie.start_year)
+        .exclude(pk=serie.pk)
+        .prefetch_related("platforms")
+    )
+    for dup in duplicates:
+        serie.platforms.add(*dup.platforms.all())
         dup.delete()
 
 
@@ -569,7 +600,10 @@ def sync_catalog_from_apis() -> dict[str, Any]:
                 if not isinstance(ser, dict) or ser.get("id") is None:
                     continue
                 ext_id = int(ser["id"])
-                ref = f"{platform_slug}:series:{ext_id}"
+                ref = _series_unified_ref(ser)
+                if ref is None:
+                    stats["errors"].append(f"Sèrie sense títol (id={ext_id}, {platform_slug}).")
+                    continue
                 seen_series_refs.add(ref)
 
                 genre = _resolve_genre(platform_slug, ser, genre_map)
@@ -585,7 +619,7 @@ def sync_catalog_from_apis() -> dict[str, Any]:
                 if not base_title:
                     stats["errors"].append(f"Sèrie sense títol (id={ext_id}, {platform_slug}).")
                     continue
-                title = _unique_title_for_content(base_title, ref)
+                title = base_title[:255]
 
                 end_year = ser.get("end_year")
                 if end_year is not None and end_year != "":
@@ -615,7 +649,8 @@ def sync_catalog_from_apis() -> dict[str, Any]:
                         "is_active": True,
                     },
                 )
-                serie.platforms.set([platform_obj])
+                serie.platforms.add(platform_obj)
+                _merge_duplicate_series(serie)
                 stats["series_upserted"] += 1
 
         stats["movies_soft_deactivated"] = Film.objects.filter(sync_external_ref__isnull=False).exclude(

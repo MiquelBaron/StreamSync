@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_DEBUG: "true"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,[::1]"
+      DJANGO_SQLITE_PATH: /data/db.sqlite3
+      CATALOG_API_HOST: host.docker.internal
+    volumes:
+      - streamsync_sqlite:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  streamsync_sqlite:

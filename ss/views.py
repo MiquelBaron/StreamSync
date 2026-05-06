@@ -96,32 +96,38 @@ class DashboardView(TemplateView):
             .order_by("-rating")[:10]
         )
         preferred_content = []
-        is_content_consumer = self.request.user.groups.filter(
-            name="Consumidor de contingut"
-        ).exists()
+        is_content_consumer = (
+            self.request.user.is_authenticated
+            and user_has_role(self.request.user, ROLE_CONTENT_CONSUMER)
+            and hasattr(self.request.user, "contentconsumer")
+        )
 
         if is_content_consumer:
-            profile, _ = ContentConsumer.objects.get_or_create(user=self.request.user)
+            profile = self.request.user.contentconsumer
             preferred_genres = profile.preferred_genres.all()
 
             if preferred_genres.exists():
                 preferred_movies = (
-                    Movie.objects.select_related("director", "genre", "age_rating")
+                    Film.objects.select_related(
+                        "director", "genre", "age_rating", "country", "language"
+                    )
                     .prefetch_related("platforms")
-                    .filter(genre__in=preferred_genres)
+                    .filter(is_active=True, genre__in=preferred_genres)
                     .order_by("title")[:6]
                 )
 
                 preferred_series = (
-                    Series.objects.select_related("director", "genre", "age_rating")
+                    Serie.objects.select_related(
+                        "director", "genre", "age_rating", "country", "language"
+                    )
                     .prefetch_related("platforms")
-                    .filter(genre__in=preferred_genres)
+                    .filter(is_active=True, genre__in=preferred_genres)
                     .order_by("title")[:6]
                 )
 
                 preferred_content = sorted(
                     chain(preferred_movies, preferred_series),
-                    key=lambda item: item.title
+                    key=lambda item: item.title.lower(),
                 )[:10]
 
         context["has_searched"] = has_searched

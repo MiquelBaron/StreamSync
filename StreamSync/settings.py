@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-k*vbmf21l*4s%vicbq^o8sf^1rhzy35k=k))g7z-&9#y9q%sj='
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-k*vbmf21l*4s%vicbq^o8sf^1rhzy35k=k))g7z-&9#y9q%sj=",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "true").strip().lower() in ("1", "true", "yes")
 
-ALLOWED_HOSTS = []
+_hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "").strip()
+if _hosts:
+    ALLOWED_HOSTS = [h.strip() for h in _hosts.split(",") if h.strip()]
+else:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
 
 
 # Application definition
@@ -73,10 +81,12 @@ WSGI_APPLICATION = 'StreamSync.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+_sqlite_default = BASE_DIR / "db.sqlite3"
+_sqlite_override = os.environ.get("DJANGO_SQLITE_PATH", "").strip()
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": _sqlite_override or _sqlite_default,
     }
 }
 
