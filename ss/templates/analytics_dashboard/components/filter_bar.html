@@ -1,0 +1,56 @@
+{# ============================================================= #}
+{# Component: filters_bar.html                                   #}
+{#                                                               #}
+{# Ús:                                                           #}
+{#   {% include "analytics_dashboard/components/filters_bar.html" #}
+{#       with show_platform_filter=True platforms=platforms %}   #}
+{#                                                               #}
+{# Paràmetres:                                                   #}
+{#   active_filters        — dict amb period/content_type/platform_id actius  #}
+{#   show_platform_filter  — True si s'ha de mostrar el filtre de plataforma  #}
+{#   platforms             — llista de {id, name} (només si show_platform_filter) #}
+{# ============================================================= #}
+
+<form method="get" class="ad-filters">
+
+    {{/* Filtre temporal */}}
+    <div class="ad-filters__group">
+        <label class="ad-filters__label" for="filter-period">Període</label>
+        <select id="filter-period" name="period" class="ad-filters__select" onchange="this.form.submit()">
+            <option value="">Tot el temps</option>
+            <option value="day"   {% if active_filters.period == "day"   %}selected{% endif %}>Avui</option>
+            <option value="week"  {% if active_filters.period == "week"  %}selected{% endif %}>Aquesta setmana</option>
+            <option value="month" {% if active_filters.period == "month" %}selected{% endif %}>Aquest mes</option>
+        </select>
+    </div>
+
+    {{/* Filtre per tipus de contingut */}}
+    <div class="ad-filters__group">
+        <label class="ad-filters__label" for="filter-type">Tipus</label>
+        <select id="filter-type" name="content_type" class="ad-filters__select" onchange="this.form.submit()">
+            <option value="">Tot el contingut</option>
+            <option value="film"  {% if active_filters.content_type == "film"  %}selected{% endif %}>Pel·lícules</option>
+            <option value="serie" {% if active_filters.content_type == "serie" %}selected{% endif %}>Sèries</option>
+        </select>
+    </div>
+
+    {{/* Filtre per plataforma — només quan show_platform_filter és True */}}
+    {% if show_platform_filter %}
+    <div class="ad-filters__group">
+        <label class="ad-filters__label" for="filter-platform">Plataforma</label>
+        <select id="filter-platform" name="platform_id" class="ad-filters__select" onchange="this.form.submit()">
+            <option value="">Totes les plataformes</option>
+            {% for p in platforms %}
+                <option value="{{ p.id }}"
+                    {% if active_filters.platform_id == p.id %}selected{% endif %}>
+                    {{ p.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+
+    {{/* Botó netejar */}}
+    <a href="." class="ad-filters__clear">✖ Netejar</a>
+
+</form>

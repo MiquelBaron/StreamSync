@@ -1,0 +1,22 @@
+{# ============================================================= #}
+{# Component: chart_card.html                                    #}
+{#                                                               #}
+{# Ús:                                                           #}
+{#   {% include "analytics_dashboard/components/chart_card.html" #}
+{#       with chart_id="genreChart" title="Visualitz. per gènere" #}
+{#       size="half" %}                                          #}
+{#                                                               #}
+{# Paràmetres:                                                   #}
+{#   chart_id — id del <canvas>, el JS l'usarà per inicialitzar #}
+{#   title    — títol de la targeta                              #}
+{#   size     — "half" (defecte) | "full"                        #}
+{# ============================================================= #}
+
+<div class="ad-chart-card {% if size == 'full' %}ad-chart-card--full{% endif %}">
+    <div class="ad-chart-card__header">
+        <h3 class="ad-chart-card__title">{{ title }}</h3>
+    </div>
+    <div class="ad-chart-card__body">
+        <canvas id="{{ chart_id }}"></canvas>
+    </div>
+</div>

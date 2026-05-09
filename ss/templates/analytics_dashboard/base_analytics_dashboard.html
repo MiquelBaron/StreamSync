@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamSync · {% block page_title %}Dashboard{% endblock %}</title>
+
+    {{/* CSS de la plataforma — mateix que dashboard.html */}}
+    <link rel="stylesheet" href="{% static 'ss/css/streamsync-ui.css' %}">
+
+    {{/* CSS específic dels dashboards analítics */}}
+    <link rel="stylesheet" href="{% static 'ss/css/analytics-dashboard.css' %}">
+
+    {{/* Chart.js — carregat aquí perquè totes les templates el necessiten */}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="nf-body">
+
+    {{/* Navbar idèntica a la resta de la plataforma */}}
+    {% include "components/navbar.html" %}
+
+    <div class="ad-layout">
+
+        {{/* Capçalera del dashboard */}}
+        <header class="ad-header">
+            <div class="ad-header__inner">
+                <div class="ad-header__title-group">
+                    <span class="ad-header__icon">{% block dashboard_icon %}📊{% endblock %}</span>
+                    <div>
+                        <h1 class="ad-header__title">{% block dashboard_title %}Dashboard{% endblock %}</h1>
+                        <p class="ad-header__subtitle">{% block dashboard_subtitle %}{% endblock %}</p>
+                    </div>
+                </div>
+
+                {{/* Filtres — cada dashboard defineix els seus */}}
+                <div class="ad-header__filters">
+                    {% block filters %}{% endblock %}
+                </div>
+            </div>
+        </header>
+
+        <main class="ad-main">
+
+            {{/* KPIs — fila de targetes numèriques */}}
+            <section class="ad-section">
+                <div class="ad-kpi-row">
+                    {% block kpis %}{% endblock %}
+                </div>
+            </section>
+
+            {{/* Gràfics */}}
+            <section class="ad-section">
+                <div class="ad-charts-grid">
+                    {% block charts %}{% endblock %}
+                </div>
+            </section>
+
+            {{/* Bloc opcional per a taules o contingut extra */}}
+            {% block extra %}{% endblock %}
+
+        </main>
+
+        <footer class="nf-footer">
+            StreamSync · Catàleg unificat
+        </footer>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>
