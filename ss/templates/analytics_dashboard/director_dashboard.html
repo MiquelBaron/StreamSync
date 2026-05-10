@@ -1,152 +1,70 @@
 {% extends "analytics_dashboard/base_analytics_dashboard.html" %}
 
-{# ============================================================= #}
-{# Dashboard Director General                                    #}
-{# Extén base_analytics_dashboard.html i usa els components      #}
-{# compartits perquè el gestor de plataformes pugui fer el mateix #}
-{# ============================================================= #}
-
 {% block page_title %}Dashboard Director General{% endblock %}
-
-{% block dashboard_icon %}🎬{% endblock %}
+{% block dashboard_icon %}{% endblock %}
 {% block dashboard_title %}Dashboard Director General{% endblock %}
-{% block dashboard_subtitle %}Visió global del catàleg i les visualitzacions{% endblock %}
-
+{% block dashboard_subtitle %}Visio global{% endblock %}
 
 {% block filters %}
-    {% include "analytics_dashboard/components/filter_bar.html" with
-        active_filters=active_filters
-        show_platform_filter=True
-        platforms=filter_options.platforms
-    %}
+{% include "analytics_dashboard/components/filter_bar.html" with active_filters=active_filters show_platform_filter=True platforms=filter_options.platforms %}
 {% endblock %}
-
 
 {% block kpis %}
-
-    {% include "analytics_dashboard/components/kpi_card.html" with
-        icon="🎬"
-        label="Contingut total"
-        value=kpis.total_content
-    %}
-
-    {% include "analytics_dashboard/components/kpi_card.html" with
-        icon="📺"
-        label="Plataformes"
-        value=kpis.total_platforms
-    %}
-
-    {% include "analytics_dashboard/components/kpi_card.html" with
-        icon="👤"
-        label="Usuaris consumidors"
-        value=kpis.total_consumers
-    %}
-
+{% include "analytics_dashboard/components/kpi_card.html" with icon="🎬" label="Contingut total" value=kpis.total_content %}
+{% include "analytics_dashboard/components/kpi_card.html" with icon="📺" label="Plataformes" value=kpis.total_platforms %}
+{% include "analytics_dashboard/components/kpi_card.html" with icon="👤" label="Usuaris" value=kpis.total_consumers %}
 {% endblock %}
-
 
 {% block charts %}
-
-    {% include "analytics_dashboard/components/chart_card.html" with
-        chart_id="genreChart"
-        title="Visualitzacions per gènere"
-    %}
-
-    {% include "analytics_dashboard/components/chart_card.html" with
-        chart_id="typeChart"
-        title="Sèries vs Pel·lícules"
-    %}
-
-    {% include "analytics_dashboard/components/chart_card.html" with
-        chart_id="topGenresChart"
-        title="Gèneres més consumits"
-    %}
-
-    {% include "analytics_dashboard/components/chart_card.html" with
-        chart_id="platformChart"
-        title="Visualitzacions per plataforma"
-    %}
-
+{% include "analytics_dashboard/components/chart_card.html" with chart_id="genreChart" title="Genere" %}
+{% include "analytics_dashboard/components/chart_card.html" with chart_id="typeChart" title="Series vs Pellicules" %}
+{% include "analytics_dashboard/components/chart_card.html" with chart_id="topGenresChart" title="Top Generes" %}
+{% include "analytics_dashboard/components/chart_card.html" with chart_id="platformChart" title="Per plataforma" %}
 {% endblock %}
 
-
-
-{# json_script injecta les dades al DOM de forma segura, sense eval ni XSS #}
-{{ charts.visualizations_by_genre    | json_script:"data-genre" }}
-{{ charts.visualizations_by_type     | json_script:"data-type" }}
-{{ charts.top_genres                 | json_script:"data-top-genres" }}
-{{ charts.visualizations_by_platform | json_script:"data-platform" }}
-
+{% block extra_js %}
+{{ charts.visualizations_by_genre|json_script:"data-genre" }}
+{{ charts.visualizations_by_type|json_script:"data-type" }}
+{{ charts.top_genres|json_script:"data-top-genres" }}
+{{ charts.visualizations_by_platform|json_script:"data-platform" }}
 <script>
-    function getData(id) {
-        return JSON.parse(document.getElementById(id).textContent);
-    }
-
-    // Paleta consistent amb --nf-red de streamsync-ui.css
-    const PALETTE = [
-        '#e50914', '#b81d24', '#f5a623', '#4a90d9',
-        '#7ed321', '#9b59b6', '#1abc9c', '#e67e22',
-    ];
-
-    function makeBarChart(canvasId, chartData, label = 'Visualitzacions') {
-        const ctx = document.getElementById(canvasId);
-        if (!ctx || !chartData.labels.length) return;
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: chartData.labels,
-                datasets: [{ label, data: chartData.data,
-                    backgroundColor: PALETTE, borderRadius: 4, borderSkipped: false }],
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
-            },
-        });
-    }
-
-    function makeHorizontalBarChart(canvasId, chartData) {
-        const ctx = document.getElementById(canvasId);
-        if (!ctx || !chartData.labels.length) return;
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: chartData.labels,
-                datasets: [{ label: 'Popularitat', data: chartData.data,
-                    backgroundColor: PALETTE, borderRadius: 4, borderSkipped: false }],
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
-            },
-        });
-    }
-
-    function makeDoughnutChart(canvasId, chartData) {
-        const ctx = document.getElementById(canvasId);
-        if (!ctx || !chartData.labels.length) return;
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: chartData.labels,
-                datasets: [{ data: chartData.data,
-                    backgroundColor: [PALETTE[0], PALETTE[3]], borderWidth: 0 }],
-            },
-            options: {
-                responsive: true,
-                cutout: '60%',
-                plugins: { legend: { position: 'bottom' } },
-            },
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        makeBarChart('genreChart',           getData('data-genre'));
-        makeDoughnutChart('typeChart',       getData('data-type'));
-        makeHorizontalBarChart('topGenresChart', getData('data-top-genres'));
-        makeBarChart('platformChart',        getData('data-platform'));
+function getData(id) {
+    return JSON.parse(document.getElementById(id).textContent);
+}
+const PALETTE = ['#e50914','#f5a623','#4a90d9','#7ed321','#9b59b6','#1abc9c','#e67e22','#b81d24'];
+function makeBarChart(canvasId, chartData, label) {
+    label = label || 'Visualitzacions';
+    var ctx = document.getElementById(canvasId);
+    if (!ctx || !chartData.labels.length) return;
+    new Chart(ctx, {
+        type: 'bar',
+        data: { labels: chartData.labels, datasets: [{ label: label, data: chartData.data, backgroundColor: PALETTE, borderRadius: 4 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: '#b3b3b3', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: '#b3b3b3' }, grid: { color: 'rgba(255,255,255,0.05)' } } } }
     });
+}
+function makeHorizontalBarChart(canvasId, chartData) {
+    var ctx = document.getElementById(canvasId);
+    if (!ctx || !chartData.labels.length) return;
+    new Chart(ctx, {
+        type: 'bar',
+        data: { labels: chartData.labels, datasets: [{ label: 'Top', data: chartData.data, backgroundColor: PALETTE, borderRadius: 4 }] },
+        options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { color: '#b3b3b3', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#b3b3b3' }, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+    });
+}
+function makeDoughnutChart(canvasId, chartData) {
+    var ctx = document.getElementById(canvasId);
+    if (!ctx || !chartData.labels.length) return;
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: chartData.labels, datasets: [{ data: chartData.data, backgroundColor: ['#e50914','#4a90d9'], borderWidth: 0 }] },
+        options: { responsive: true, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { color: '#b3b3b3', padding: 16 } } } }
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    makeBarChart('genreChart', getData('data-genre'));
+    makeDoughnutChart('typeChart', getData('data-type'));
+    makeHorizontalBarChart('topGenresChart', getData('data-top-genres'));
+    makeBarChart('platformChart', getData('data-platform'));
+});
 </script>
+{% endblock %}
