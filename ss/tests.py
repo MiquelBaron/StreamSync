@@ -1,9 +1,23 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
+from datetime import timedelta
 
 from .forms import ContentSearchForm
-from .models import AgeRating, Country, Director, Film, Genre, Language, Platform, Serie
+from .models import (
+    AgeRating,
+    Country,
+    Director,
+    Film,
+    Genre,
+    Language,
+    PlataformManager,
+    Platform,
+    Serie,
+    Visualization,
+)
+from .roles import ROLE_PLATFORM_MANAGER, ensure_role_groups, get_role_group
 from .search import DatabaseContentSearchService, SearchCriteria
 
 
@@ -162,3 +176,174 @@ class SearchTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Administrador")
+
+
+class PlatformAnalyticsDashboardTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        ensure_role_groups()
+        country = Country.objects.create(name="Espanya", iso_code="ESP")
+        language = Language.objects.create(name="Catala", iso_code="CAT")
+        age_13 = AgeRating.objects.create(description="13+", minimum_age=13)
+        director = Director.objects.create(name="Directora", country=country)
+        cls.scifi = Genre.objects.create(name="Ciencia ficcio")
+        cls.horror = Genre.objects.create(name="Terror")
+        cls.netflix = Platform.objects.create(name="Netflix")
+        cls.hbo = Platform.objects.create(name="HBO Max")
+
+        cls.netflix_film = Film.objects.create(
+            title="Film Netflix",
+            synopsis="",
+            year=2024,
+            genre=cls.scifi,
+            director=director,
+            country=country,
+            language=language,
+            age_rating=age_13,
+        )
+        cls.netflix_film.platforms.add(cls.netflix)
+
+        cls.netflix_serie = Serie.objects.create(
+            title="Serie Netflix",
+            synopsis="",
+            start_year=2024,
+            total_seasons=1,
+            genre=cls.scifi,
+            director=director,
+            country=country,
+            language=language,
+            age_rating=age_13,
+        )
+        cls.netflix_serie.platforms.add(cls.netflix)
+
+        cls.hbo_film = Film.objects.create(
+            title="Film HBO",
+            synopsis="",
+            year=2024,
+            genre=cls.horror,
+            director=director,
+            country=country,
+            language=language,
+            age_rating=age_13,
+        )
+        cls.hbo_film.platforms.add(cls.hbo)
+
+        cls.manager = PlataformManager.objects.create_user(
+            username="gestor_netflix",
+            password="secret123",
+            platform=cls.netflix,
+        )
+        cls.manager.groups.add(get_role_group(ROLE_PLATFORM_MANAGER))
+        cls.other_user = get_user_model().objects.create_user(
+            username="plain",
+            password="secret123",
+        )
+
+        base = timezone.now()
+        Visualization.objects.create(
+            user=cls.other_user,
+            viewed_at=base - timedelta(days=1),
+            content=cls.netflix_film,
+            genre=cls.scifi,
+            platform=cls.netflix,
+        )
+        Visualization.objects.create(
+            user=cls.manager,
+            viewed_at=base - timedelta(days=2),
+            content=cls.netflix_serie,
+            genre=cls.scifi,
+            platform=cls.netflix,
+        )
+        Visualization.objects.create(
+            user=cls.other_user,
+            viewed_at=base - timedelta(days=20),
+            content=cls.netflix_film,
+            genre=cls.scifi,
+            platform=cls.netflix,
+        )
+        Visualization.objects.create(
+            user=cls.manager,
+            viewed_at=base - timedelta(days=1),
+            content=cls.hbo_film,
+            genre=cls.horror,
+            platform=cls.hbo,
+        )
+
+    def test_platform_manager_can_access_own_dashboard(self):
+        self.client.force_login(self.manager)
+
+        response = self.client.get(reverse("platform_analytics_dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["dashboard"].platform_name, "Netflix")
+        self.assertEqual(response.context["dashboard"].catalog_kpis.film_count, 1)
+        self.assertEqual(response.context["dashboard"].catalog_kpis.serie_count, 1)
+        self.assertEqual(response.context["dashboard"].report_kpis.total_visualizations, 3)
+
+    def test_non_platform_manager_cannot_access_dashboard(self):
+        self.client.force_login(self.other_user)
+
+        response = self.client.get(reverse("platform_analytics_dashboard"))
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_tampered_platform_filter_still_uses_managed_platform(self):
+        self.client.force_login(self.manager)
+
+        response = self.client.get(
+            reverse("platform_analytics_dashboard"),
+            {"platform": self.hbo.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["dashboard"].platform_name, "Netflix")
+        labels = [row["label"] for row in response.context["chart_data"]["genreViews"]]
+        self.assertEqual(labels, ["Ciencia ficcio"])
+
+    def test_filters_apply_to_managed_platform_data(self):
+        self.client.force_login(self.manager)
+
+        response = self.client.get(
+            reverse("platform_analytics_dashboard"),
+            {
+                "platform": self.netflix.pk,
+                "period": "days",
+                "content_type": "film",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["dashboard"].report_kpis.total_visualizations, 1)
+        self.assertEqual(response.context["dashboard"].report_kpis.film_visualizations, 1)
+        self.assertEqual(response.context["dashboard"].report_kpis.serie_visualizations, 0)
+
+    def test_platform_manager_can_export_csv_with_kpis_and_top_content(self):
+        self.client.force_login(self.manager)
+
+        response = self.client.get(reverse("platform_analytics_csv"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/csv; charset=utf-8")
+        body = response.content.decode("utf-8-sig")
+        self.assertIn("KPI,Pellicules totals,,,1", body)
+        self.assertIn("KPI,Series totals,,,1", body)
+        self.assertIn("KPI,Visualitzacions series,,,1", body)
+        self.assertIn("KPI,Visualitzacions pellicules,,,2", body)
+        self.assertIn("Top 3 pellicules,Film Netflix,1,2,", body)
+        self.assertIn("Top 3 series,Serie Netflix,1,1,", body)
+
+    def test_non_platform_manager_cannot_export_csv(self):
+        self.client.force_login(self.other_user)
+
+        response = self.client.get(reverse("platform_analytics_csv"))
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_platform_manager_can_export_pdf(self):
+        self.client.force_login(self.manager)
+
+        response = self.client.get(reverse("platform_analytics_pdf"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        self.assertTrue(response.content.startswith(b"%PDF"))

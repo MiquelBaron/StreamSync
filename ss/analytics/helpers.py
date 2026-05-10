@@ -1,7 +1,10 @@
 from django.core.exceptions import PermissionDenied
-from django.db.models import Case, CharField, Count, Value, When
+from datetime import timedelta
 
-from ss.models import Visualization
+from django.db.models import Case, CharField, Count, Value, When
+from django.utils import timezone
+
+from ss.models import Film, Serie, Visualization
 
 
 def get_platform_for_platform_manager(user):
@@ -12,6 +15,33 @@ def get_platform_for_platform_manager(user):
 
 def base_platform_visualizations_queryset(platform):
     return Visualization.objects.filter(platform=platform, content__is_active=True)
+
+
+def filter_visualizations_by_period(base_queryset, period: str | None):
+    period_days = {
+        "days": 7,
+        "weeks": 28,
+        "months": 365,
+    }
+    days = period_days.get(period or "")
+    if not days:
+        return base_queryset
+    return base_queryset.filter(viewed_at__gte=timezone.now() - timedelta(days=days))
+
+
+def filter_visualizations_by_content_type(base_queryset, content_type: str | None):
+    if content_type == "film":
+        return base_queryset.filter(content__film__isnull=False)
+    if content_type == "serie":
+        return base_queryset.filter(content__serie__isnull=False)
+    return base_queryset
+
+
+def compute_platform_catalog_kpis(platform) -> dict[str, int]:
+    return {
+        "film_count": Film.objects.filter(platforms=platform, is_active=True).distinct().count(),
+        "serie_count": Serie.objects.filter(platforms=platform, is_active=True).distinct().count(),
+    }
 
 
 def compute_platform_report_kpis(base_queryset) -> dict[str, int]:
@@ -44,4 +74,10 @@ def aggregate_content_clicks_table(base_queryset) -> list[dict]:
         )
         .order_by("-clicks", "content__title")
     )
+
+
+def aggregate_top_content_by_type(base_queryset, content_type: str, limit: int = 3) -> list[dict]:
+    return aggregate_content_clicks_table(
+        filter_visualizations_by_content_type(base_queryset, content_type)
+    )[:limit]
 
