@@ -14,7 +14,7 @@
 
 
 {% block filters %}
-    {% include "analytics_dashboard/components/filters_bar.html" with
+    {% include "analytics_dashboard/components/filter_bar.html" with
         active_filters=active_filters
         show_platform_filter=True
         platforms=filter_options.platforms
@@ -70,9 +70,8 @@
 {% endblock %}
 
 
-{% block extra_js %}
 
-{{/* json_script injecta les dades al DOM de forma segura, sense eval ni XSS */}}
+{# json_script injecta les dades al DOM de forma segura, sense eval ni XSS #}
 {{ charts.visualizations_by_genre    | json_script:"data-genre" }}
 {{ charts.visualizations_by_type     | json_script:"data-type" }}
 {{ charts.top_genres                 | json_script:"data-top-genres" }}
@@ -151,4 +150,3 @@
         makeBarChart('platformChart',        getData('data-platform'));
     });
 </script>
-{% endblock %}
