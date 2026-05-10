@@ -1,6 +1,5 @@
 from django.urls import path
 from .views import *
-
 urlpatterns = [
     path("login/", CustomLoginView.as_view(), name="login"),
     path("register/", RegisterView.as_view(), name="register"),
@@ -12,4 +11,5 @@ urlpatterns = [
     path("preferences/", PreferencesView.as_view(), name="preferences" ),
     path("visualizations/register/", RegisterVisualizationView.as_view(), name="register_visualization"),
     path("reports/platform-analytics.pdf", PlatformAnalyticsPdfView.as_view(), name="platform_analytics_pdf"),
+    path("dashboard/director/", DirectorDashboardView.as_view(), name="director_dashboard"),
 ]
