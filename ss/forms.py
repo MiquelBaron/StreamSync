@@ -61,6 +61,9 @@ class PreferencesForm(forms.ModelForm):
 class PlatformAnalyticsFilterForm(forms.Form):
     PERIOD_CHOICES = [
         ("", "Tot l'historial"),
+        ("day", "Avui"),
+        ("week", "Setmana"),
+        ("month", "Mes"),
         ("days", "Ultims 7 dies"),
         ("weeks", "Ultimes 4 setmanes"),
         ("months", "Ultims 12 mesos"),

@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -19,19 +19,22 @@ from .forms import *
 from .models import *
 from .roles import (
     ROLE_CONTENT_CONSUMER,
+    ROLE_GENERAL_DIRECTOR,
     ROLE_PLATFORM_MANAGER,
     ensure_role_groups,
     get_role_group,
     user_has_role,
 )
 from .search import DatabaseContentSearchService, SearchCriteria
-from .analytics.helpers import get_platform_for_platform_manager
-from .analytics.report import (
+from .services.platform_analytics import (
     build_platform_dashboard_data,
     content_type_chart_png_base64,
     genre_clicks_chart_png_base64,
+    get_platform_for_platform_manager,
     top_genres_chart_png_base64,
 )
+from .services.director_dashboard_services import DirectorDashboardService
+from .services.platform_manager_dashboard_service import PlatformManagerDashboardService
 from .services.visualizations import register_visualization
 
 
@@ -201,7 +204,7 @@ class RegisterVisualizationView(LoginRequiredMixin, View):
 
 
 class PlatformAnalyticsDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
-    template_name = "platform_analytics_dashboard.html"
+    template_name = "analytics_dashboard/platform_manager_dashboard.html"
     login_url = "/login/"
     raise_exception = True
 
@@ -233,6 +236,14 @@ class PlatformAnalyticsDashboardView(LoginRequiredMixin, UserPassesTestMixin, Te
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form, dashboard = self._get_filtered_dashboard()
+        service = PlatformManagerDashboardService(
+            platform=get_platform_for_platform_manager(self.request.user),
+            filters={
+                "period": form.cleaned_data.get("period") if form.is_valid() else "",
+                "content_type": form.cleaned_data.get("content_type") if form.is_valid() else "",
+            },
+        )
+        context.update(service.get_dashboard_context())
         context["filter_form"] = form
         context["dashboard"] = dashboard
         context["export_querystring"] = self.request.GET.urlencode()
@@ -344,4 +355,38 @@ class PlatformAnalyticsCsvView(LoginRequiredMixin, UserPassesTestMixin, View):
             writer.writerow(["Top 3 series", row["content__title"], index, row["clicks"], ""])
 
         return response
+
+
+class DirectorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
+    login_url = "/login/"
+    raise_exception = True
+
+    def test_func(self):
+        return user_has_role(self.request.user, ROLE_GENERAL_DIRECTOR)
+
+    def get(self, request, *args, **kwargs):
+        service = DirectorDashboardService(filters=self._parse_filters(request.GET))
+        return render(
+            request,
+            "analytics_dashboard/director_dashboard.html",
+            service.get_dashboard_context(),
+        )
+
+    @staticmethod
+    def _parse_filters(get_params) -> dict:
+        filters = {}
+
+        period = get_params.get("period")
+        if period in ("day", "week", "month"):
+            filters["period"] = period
+
+        content_type = get_params.get("content_type")
+        if content_type in ("film", "serie"):
+            filters["content_type"] = content_type
+
+        platform_id = get_params.get("platform_id")
+        if platform_id and platform_id.isdigit():
+            filters["platform_id"] = int(platform_id)
+
+        return filters
 

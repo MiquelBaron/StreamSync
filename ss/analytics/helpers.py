@@ -5,10 +5,11 @@ from django.db.models import Case, CharField, Count, Value, When
 from django.utils import timezone
 
 from ss.models import Film, Serie, Visualization
+from ss.roles import ROLE_PLATFORM_MANAGER, user_has_role
 
 
 def get_platform_for_platform_manager(user):
-    if not hasattr(user, "plataformmanager"):
+    if not user_has_role(user, ROLE_PLATFORM_MANAGER) or not hasattr(user, "plataformmanager"):
         raise PermissionDenied("Només els gestors de plataforma poden accedir a aquest informe.")
     return user.plataformmanager.platform
 
@@ -19,6 +20,9 @@ def base_platform_visualizations_queryset(platform):
 
 def filter_visualizations_by_period(base_queryset, period: str | None):
     period_days = {
+        "day": 1,
+        "week": 7,
+        "month": 30,
         "days": 7,
         "weeks": 28,
         "months": 365,

@@ -1,7 +1,43 @@
-from ss.analytics.helpers import get_platform_for_platform_manager
+from ss.analytics.helpers import (
+    aggregate_clicks_per_genre,
+    aggregate_content_clicks_table,
+    aggregate_top_content_by_type,
+    base_platform_visualizations_queryset,
+    compute_platform_catalog_kpis,
+    compute_platform_report_kpis,
+    filter_visualizations_by_content_type,
+    filter_visualizations_by_period,
+    get_platform_for_platform_manager,
+)
 from ss.analytics.report import (
+    PlatformCatalogKpis,
+    PlatformDashboardData,
     PlatformReportData,
     PlatformReportKpis,
+    build_platform_dashboard_data,
     build_platform_report_data,
+    content_type_chart_png_base64,
     genre_clicks_chart_png_base64,
+    top_genres_chart_png_base64,
 )
+
+__all__ = [
+    "PlatformCatalogKpis",
+    "PlatformDashboardData",
+    "PlatformReportData",
+    "PlatformReportKpis",
+    "aggregate_clicks_per_genre",
+    "aggregate_content_clicks_table",
+    "aggregate_top_content_by_type",
+    "base_platform_visualizations_queryset",
+    "build_platform_dashboard_data",
+    "build_platform_report_data",
+    "compute_platform_catalog_kpis",
+    "compute_platform_report_kpis",
+    "content_type_chart_png_base64",
+    "filter_visualizations_by_content_type",
+    "filter_visualizations_by_period",
+    "genre_clicks_chart_png_base64",
+    "get_platform_for_platform_manager",
+    "top_genres_chart_png_base64",
+]
