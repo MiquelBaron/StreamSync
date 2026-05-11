@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamSync - {% block page_title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'ss/css/streamsync-ui.css' %}">
+    <link rel="stylesheet" href="{% static 'ss/css/analytics-dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="nf-body">
+
+    {% include "components/navbar.html" %}
+
+    <div class="ad-hero">
+        <div class="ad-hero__inner">
+            <div class="ad-hero__title-group">
+                <span class="ad-hero__icon">{% block dashboard_icon %}{% endblock %}</span>
+                <div>
+                    <h1 class="ad-hero__title">{% block dashboard_title %}Dashboard{% endblock %}</h1>
+                    <p class="ad-hero__subtitle">{% block dashboard_subtitle %}{% endblock %}</p>
+                </div>
+            </div>
+            <div>
+                {% block filters %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <div class="ad-page">
+        <main class="ad-main">
+
+            <div class="ad-kpi-row">
+                {% block kpis %}{% endblock %}
+            </div>
+
+            <div class="ad-charts-grid">
+                {% block charts %}{% endblock %}
+            </div>
+
+            {% block extra %}{% endblock %}
+
+        </main>
+    </div>
+
+    <footer class="nf-footer">
+        StreamSync - Cataleg unificat
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

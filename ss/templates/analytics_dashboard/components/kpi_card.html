@@ -1,0 +1,23 @@
+{# ============================================================= #}
+{# Component: kpi_card.html                                      #}
+{#                                                               #}
+{# Ús:                                                           #}
+{#   {% include "analytics_dashboard/components/kpi_card.html"  #}
+{#       with icon="🎬" label="Contingut total" value=120        #}
+{#       sub="60 pel·lícules · 60 sèries" %}                    #}
+{#                                                               #}
+{# Paràmetres:                                                   #}
+{#   icon   — emoji o text curt                                  #}
+{#   label  — títol de la targeta                                #}
+{#   value  — número principal (gran)                            #}
+{#   sub    — text secundari opcional                            #}
+{# ============================================================= #}
+
+<div class="ad-kpi-card">
+    <span class="ad-kpi-card__icon">{{ icon }}</span>
+    <span class="ad-kpi-card__value">{{ value }}</span>
+    <span class="ad-kpi-card__label">{{ label }}</span>
+    {% if sub %}
+        <span class="ad-kpi-card__sub">{{ sub }}</span>
+    {% endif %}
+</div>

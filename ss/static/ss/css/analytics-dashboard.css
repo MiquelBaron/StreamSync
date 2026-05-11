@@ -1,0 +1,234 @@
+/* ================================================================
+   analytics-dashboard.css
+   Afegeix estils per als dashboards analítics (Director + Gestor).
+   No redefineix res de streamsync-ui.css, només afegeix classes
+   noves amb el prefix --ad- i .ad-.
+   ================================================================ */
+
+:root {
+    --ad-surface:     #1f1f1f;
+    --ad-surface-alt: #2a2a2a;
+    --ad-border:      rgba(255,255,255,0.08);
+    --ad-border-hover:rgba(229,9,20,0.45);
+    --ad-radius:      4px;
+    --ad-gap:         1.25rem;
+}
+
+/* ── Layout ────────────────────────────────────────────────────── */
+.ad-page {
+    min-height: calc(100vh - var(--nf-header-h));
+    display: flex;
+    flex-direction: column;
+}
+
+.ad-main {
+    flex: 1;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 4%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* ── Capçalera del dashboard ─────────────────────────────────── */
+.ad-hero {
+    background: linear-gradient(90deg,rgba(0,0,0,.85) 35%,transparent 75%),
+                radial-gradient(ellipse 80% 60% at 20% 40%,
+                rgba(229,9,20,.12),transparent 55%),
+                var(--nf-black-deep);
+    padding: 2rem 4%;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.ad-hero__inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.ad-hero__title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.ad-hero__icon { font-size: 2rem; line-height: 1; }
+
+.ad-hero__title {
+    margin: 0;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--nf-white);
+}
+
+.ad-hero__subtitle {
+    margin: 0.2rem 0 0;
+    font-size: 0.9rem;
+    color: var(--nf-gray);
+}
+
+/* ── Filtres ─────────────────────────────────────────────────── */
+.ad-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.65rem;
+}
+
+/* Reutilitzem .filter-card de streamsync-ui.css */
+.ad-filters .filter-card {
+    min-width: 130px;
+}
+
+.ad-filters .filter-card label {
+    font-size: 0.65rem;
+}
+
+.ad-filters__clear {
+    /* Igual que .clear-filters-link */
+    background: rgba(255,255,255,0.1);
+    border-radius: var(--ad-radius);
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    text-decoration: none;
+    color: #e5e5e5;
+    align-self: flex-end;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+}
+
+.ad-filters__clear:hover {
+    background: var(--nf-red);
+    color: #fff;
+}
+
+/* ── Fila de KPIs ────────────────────────────────────────────── */
+.ad-kpi-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ad-gap);
+}
+
+/* ── Targeta KPI — estil .profile-card adaptat ───────────────── */
+.ad-kpi-card {
+    flex: 1 1 180px;
+    background: var(--ad-surface);
+    border: 1px solid var(--ad-border);
+    border-radius: var(--ad-radius);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    transition: border-color 0.2s;
+}
+
+.ad-kpi-card:hover {
+    border-color: var(--ad-border-hover);
+}
+
+.ad-kpi-card__icon {
+    font-size: 1.5rem;
+    line-height: 1;
+    margin-bottom: 0.35rem;
+}
+
+.ad-kpi-card__value {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--nf-white);
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.ad-kpi-card__label {
+    /* Igual que .profile-card__label */
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--nf-gray);
+    margin-top: 0.15rem;
+}
+
+.ad-kpi-card__sub {
+    font-size: 0.72rem;
+    color: var(--nf-gray-dark);
+    margin-top: 0.2rem;
+}
+
+/* ── Graella de gràfics ──────────────────────────────────────── */
+.ad-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--ad-gap);
+}
+
+@media (max-width: 900px) {
+    .ad-charts-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Targeta de gràfic — estil .profile-panel adaptat ───────── */
+.ad-chart-card {
+    background: var(--ad-surface);
+    border: 1px solid var(--ad-border);
+    border-radius: var(--ad-radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s;
+}
+
+.ad-chart-card:hover {
+    border-color: var(--ad-border-hover);
+}
+
+.ad-chart-card--full {
+    grid-column: 1 / -1;
+}
+
+.ad-chart-card__header {
+    padding: 0.75rem 1.25rem;
+    background: var(--ad-surface-alt);
+    border-bottom: 1px solid var(--ad-border);
+}
+
+.ad-chart-card__title {
+    margin: 0;
+    /* Igual que .profile-card__label */
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--nf-gray);
+}
+
+.ad-chart-card__body {
+    padding: 1.25rem;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+}
+
+.ad-chart-card__body canvas {
+    max-height: 290px;
+    width: 100% !important;
+}
+
+/* ── Missatge quan no hi ha dades ────────────────────────────── */
+/* Reutilitzem .empty-message de streamsync-ui.css */
+.ad-empty {
+    composes: empty-message;
+    text-align: center;
+    padding: 3rem;
+    color: var(--nf-gray);
+    font-size: 0.9rem;
+}

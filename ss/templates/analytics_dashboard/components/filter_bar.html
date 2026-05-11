@@ -1,0 +1,39 @@
+<form method="get" class="ad-filters">
+
+    {# Filtre temporal #}
+    <div class="filter-card">
+        <label for="filter-period">Periode</label>
+        <select id="filter-period" name="period" onchange="this.form.submit()">
+            <option value="">Tot el temps</option>
+            <option value="day"   {% if active_filters.period == "day"   %}selected{% endif %}>Avui</option>
+            <option value="week"  {% if active_filters.period == "week"  %}selected{% endif %}>Setmana</option>
+            <option value="month" {% if active_filters.period == "month" %}selected{% endif %}>Mes</option>
+        </select>
+    </div>
+
+    {# Filtre per tipus de contingut #}
+    <div class="filter-card">
+        <label for="filter-type">Tipus</label>
+        <select id="filter-type" name="content_type" onchange="this.form.submit()">
+            <option value="">Tot</option>
+            <option value="film"  {% if active_filters.content_type == "film"  %}selected{% endif %}>Pel·licules</option>
+            <option value="serie" {% if active_filters.content_type == "serie" %}selected{% endif %}>Series</option>
+        </select>
+    </div>
+
+    {# Filtre per plataforma - nomes pel Director General #}
+    {% if show_platform_filter %}
+    <div class="filter-card">
+        <label for="filter-platform">Plataforma</label>
+        <select id="filter-platform" name="platform_id" onchange="this.form.submit()">
+            <option value="">Totes</option>
+            {% for p in platforms %}
+                <option value="{{ p.id }}" {% if active_filters.platform_id == p.id %}selected{% endif %}>{{ p.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+
+    <a href="." class="ad-filters__clear">x Netejar</a>
+
+</form>

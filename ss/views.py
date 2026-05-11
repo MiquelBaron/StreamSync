@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -13,11 +13,14 @@ from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from itertools import chain
+from .services.director_dashboard_services import DirectorDashboardService
+
 
 from .forms import *
 from .models import *
 from .roles import (
     ROLE_CONTENT_CONSUMER,
+    ROLE_GENERAL_DIRECTOR,
     ROLE_PLATFORM_MANAGER,
     ensure_role_groups,
     get_role_group,
@@ -103,7 +106,7 @@ class DashboardView(TemplateView):
         )
 
         if is_content_consumer:
-            profile = self.request.user.contentconsumer
+            profile = self.request.user.contentconsumer # type: ignore
             preferred_genres = profile.preferred_genres.all()
 
             if preferred_genres.exists():
@@ -220,6 +223,56 @@ class PlatformAnalyticsPdfView(LoginRequiredMixin, UserPassesTestMixin, View):
         response = HttpResponse(pdf_bytes, content_type="application/pdf")
         response["Content-Disposition"] = 'attachment; filename="informe-plataforma.pdf"'
         return response
+# ── Imports a afegir a la secció d'imports de views.py ──────────────
+# from .services.director_dashboard_service import DirectorDashboardService
+# ────────────────────────────────────────────────────────────────────
 
 
+class DirectorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
 
+    login_url = "/login/"
+    raise_exception = True  # retorna 403 en lloc de redirigir al login
+
+    # ── Protecció de rol ─────────────────────────────────────────────
+    def test_func(self):
+        # Mateix patró que PlatformAnalyticsPdfView
+        return user_has_role(self.request.user, ROLE_GENERAL_DIRECTOR)
+
+    # ── Gestió de la petició GET ─────────────────────────────────────
+    def get(self, request, *args, **kwargs):
+        filters = self._parse_filters(request.GET)
+
+
+        service = DirectorDashboardService(filters=filters)
+
+        context = service.get_dashboard_context()
+
+        return render(request, "analytics_dashboard/director_dashboard.html", context)
+
+    # ── Helper privat: extreu i valida els filtres ───────────────────
+    @staticmethod   #No mira res dins el parametres
+    def _parse_filters(get_params) -> dict:
+        """
+        Llegeix els paràmetres GET i retorna un dict net.
+        Valors no esperats es descarten (mai es passen al servei).
+
+        Paràmetres acceptats:
+          period       → 'day' | 'week' | 'month'
+          content_type → 'film' | 'serie'
+          platform_id  → enter positiu
+        """
+        filters = {}
+
+        period = get_params.get("period")
+        if period in ("day", "week", "month"):
+            filters["period"] = period
+
+        content_type = get_params.get("content_type")
+        if content_type in ("film", "serie"):
+            filters["content_type"] = content_type
+
+        platform_id = get_params.get("platform_id")
+        if platform_id and platform_id.isdigit():
+            filters["platform_id"] = int(platform_id)
+
+        return filters
