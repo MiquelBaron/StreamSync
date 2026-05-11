@@ -29,6 +29,12 @@
                     Exportar PDF
                 </a>
             {% endif %}
+
+            {% if user|has_role:"general_director" %}
+                <a class="nf-nav__link" href="{% url 'director_dashboard' %}">
+                    Dashboard
+                </a>
+            {% endif %}
         </nav>
     </div>
     {% if user.is_authenticated %}
