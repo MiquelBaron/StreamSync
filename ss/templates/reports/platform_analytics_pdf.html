@@ -2,69 +2,140 @@
 <html lang="ca">
 <head>
     <meta charset="utf-8">
-    <title>Informe — {{ report.platform_name }}</title>
+    <title>Informe - {{ dashboard.platform_name }}</title>
     <style>
-        @page { size: A4; margin: 1.2cm; }
-        body { font-family: DejaVu Sans, sans-serif; font-size: 11pt; color: #111; }
-        h1 { font-size: 18pt; margin: 0 0 0.5em; }
-        h2 { font-size: 13pt; margin: 1.2em 0 0.4em; border-bottom: 1px solid #ccc; padding-bottom: 0.2em; }
-        .meta { color: #555; font-size: 10pt; margin-bottom: 1em; }
-        .kpis { display: flex; gap: 1.5em; flex-wrap: wrap; margin: 0.5em 0 1em; }
-        .kpi { border: 1px solid #ddd; padding: 0.6em 1em; border-radius: 4px; min-width: 7em; }
-        .kpi strong { display: block; font-size: 1.4em; }
-        .chart-wrap { margin: 0.5em 0 1em; text-align: center; }
-        .chart-wrap img { max-width: 100%; height: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 0.5em; }
-        th, td { border: 1px solid #ccc; padding: 0.35em 0.5em; text-align: left; }
-        th { background: #f5f5f5; }
-        td.num { text-align: right; }
+        @page { size: A4; margin: 1.05cm; }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 9pt; color: #161616; }
+        h1 { font-size: 19pt; margin: 0 0 0.12cm; color: #111; }
+        h2 { font-size: 11pt; margin: 0 0 0.22cm; color: #111; }
+        h3 { font-size: 9.5pt; margin: 0 0 0.16cm; color: #111; }
+        .header { border-bottom: 3px solid #e50914; padding-bottom: 0.3cm; margin-bottom: 0.38cm; }
+        .meta { color: #555; margin: 0.04cm 0; }
+        .section { margin-bottom: 0.42cm; page-break-inside: avoid; }
+        .section--top-content { page-break-before: always; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        table.kpis { border-collapse: separate; border-spacing: 0.1cm 0; margin-left: -0.1cm; }
+        table.kpis td { width: 3.45cm; border: 1px solid #ddd; border-left: 4px solid #e50914; padding: 0.16cm; background: #f7f7f7; vertical-align: top; }
+        .kpi span { display: block; color: #555; font-size: 7pt; text-transform: uppercase; }
+        .kpi strong { display: block; font-size: 14pt; margin-top: 0.07cm; color: #111; }
+        .chart-grid { width: 100%; border-collapse: separate; border-spacing: 0.18cm; margin-left: -0.18cm; }
+        .chart-grid td { width: 8.7cm; vertical-align: top; border: 1px solid #ddd; padding: 0.18cm; background: #fff; }
+        .chart-full { border: 1px solid #ddd; padding: 0.18cm; background: #fff; text-align: center; }
+        .chart-grid img { max-width: 96%; max-height: 5.3cm; height: auto; }
+        .chart-full img { max-width: 92%; max-height: 5.2cm; height: auto; }
+        .data-table th, .data-table td { border-bottom: 1px solid #ddd; padding: 0.15cm 0.2cm; text-align: left; vertical-align: top; }
+        .data-table th { background: #f0f0f0; color: #555; font-size: 7.5pt; text-transform: uppercase; }
+        .data-table th.title { width: 58%; }
+        .data-table th.type { width: 24%; }
+        .data-table th.num, .data-table td.num { width: 18%; text-align: right; }
+        .split { width: 100%; border-collapse: separate; border-spacing: 0.18cm; margin-left: -0.18cm; }
+        .split td { width: 8.7cm; vertical-align: top; }
+        .type-pill { border: 1px solid #ddd; border-radius: 10px; padding: 0.04cm 0.15cm; font-size: 8pt; background: #fafafa; }
     </style>
 </head>
 <body>
-    <h1>Informe analític StreamSync</h1>
-    <p class="meta">Plataforma: <strong>{{ report.platform_name }}</strong></p>
-
-    <h2>Gràfic: clicks per gènere</h2>
-    <div class="chart-wrap">
-        <img src="data:image/png;base64,{{ chart_b64 }}" alt="Clicks per gènere">
+    <div class="header">
+        <h1>Informe analitic StreamSync</h1>
+        <p class="meta">Plataforma: <strong>{{ dashboard.platform_name }}</strong></p>
+        <p class="meta">Dades limitades a la plataforma assignada al gestor.</p>
     </div>
 
-    <h2>KPI</h2>
-    <div class="kpis">
-        <div class="kpi">
-            <span>Total visualitzacions</span>
-            <strong>{{ report.kpis.total_visualizations }}</strong>
-        </div>
-        <div class="kpi">
-            <span>Visualitzacions (pel·lícules)</span>
-            <strong>{{ report.kpis.film_visualizations }}</strong>
-        </div>
-        <div class="kpi">
-            <span>Visualitzacions (sèries)</span>
-            <strong>{{ report.kpis.serie_visualizations }}</strong>
+    <div class="section">
+        <h2>Indicadors principals</h2>
+        <table class="kpis">
+            <tr>
+                <td class="kpi"><span>Pel.licules cataleg</span><strong>{{ dashboard.catalog_kpis.film_count }}</strong></td>
+                <td class="kpi"><span>Series cataleg</span><strong>{{ dashboard.catalog_kpis.serie_count }}</strong></td>
+                <td class="kpi"><span>Total views</span><strong>{{ dashboard.report_kpis.total_visualizations }}</strong></td>
+                <td class="kpi"><span>Views series</span><strong>{{ dashboard.report_kpis.serie_visualizations }}</strong></td>
+                <td class="kpi"><span>Views pel.licules</span><strong>{{ dashboard.report_kpis.film_visualizations }}</strong></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Grafics</h2>
+        <table class="chart-grid">
+            <tr>
+                <td>
+                    <h3>Visualitzacions per genere</h3>
+                    <img src="data:image/png;base64,{{ genre_chart_b64 }}" alt="Visualitzacions per genere">
+                </td>
+                <td>
+                    <h3>Series vs pel.licules</h3>
+                    <img src="data:image/png;base64,{{ content_type_chart_b64 }}" alt="Series vs pel.licules">
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Generes mes consumits</h2>
+        <div class="chart-full">
+            <img src="data:image/png;base64,{{ top_genres_chart_b64 }}" alt="Generes mes consumits">
         </div>
     </div>
 
-    <h2>Taula: contingut per clicks</h2>
-    <table>
-        <thead>
+    <div class="section section--top-content">
+        <h2>Top continguts</h2>
+        <table class="split">
             <tr>
-                <th>Contingut</th>
-                <th>Tipus</th>
-                <th class="num">Clicks</th>
+                <td>
+                    <h3>Top 3 pel.licules</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr><th class="title">Contingut</th><th class="num">Views</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for row in dashboard.top_films %}
+                            <tr><td>{{ row.content__title }}</td><td class="num">{{ row.clicks }}</td></tr>
+                            {% empty %}
+                            <tr><td colspan="2">Sense dades.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <h3>Top 3 series</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr><th class="title">Contingut</th><th class="num">Views</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for row in dashboard.top_series %}
+                            <tr><td>{{ row.content__title }}</td><td class="num">{{ row.clicks }}</td></tr>
+                            {% empty %}
+                            <tr><td colspan="2">Sense dades.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            {% for row in report.content_table %}
-            <tr>
-                <td>{{ row.content__title }}</td>
-                <td>{{ row.tipus }}</td>
-                <td class="num">{{ row.clicks }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="3">Sense dades.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Continguts mes vistos</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="title">Contingut</th>
+                    <th class="type">Tipus</th>
+                    <th class="num">Visualitzacions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in dashboard.content_table %}
+                <tr>
+                    <td>{{ row.content__title }}</td>
+                    <td><span class="type-pill">{{ row.tipus }}</span></td>
+                    <td class="num">{{ row.clicks }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">Sense dades.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

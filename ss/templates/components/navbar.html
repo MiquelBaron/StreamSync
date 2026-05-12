@@ -22,6 +22,9 @@
             {% endif %}
 
             {% if user|has_role:"platform_manager" %}
+                <a class="nf-nav__link" href="{% url 'platform_analytics_dashboard' %}">
+                    Analitica
+                </a>
                 <a class="nf-nav__link" href="{% url 'platform_analytics_pdf' %}">
                     Exportar PDF
                 </a>

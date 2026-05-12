@@ -1,3 +1,4 @@
+import csv
 import json
 
 from django.contrib.auth.forms import UserCreationForm
@@ -13,8 +14,6 @@ from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from itertools import chain
-from .services.director_dashboard_services import DirectorDashboardService
-
 
 from .forms import *
 from .models import *
@@ -27,12 +26,15 @@ from .roles import (
     user_has_role,
 )
 from .search import DatabaseContentSearchService, SearchCriteria
-from .analytics.helpers import get_platform_for_platform_manager
-from .analytics.report import (
-    build_platform_report_data,
+from .services.platform_analytics import (
+    build_platform_dashboard_data,
+    content_type_chart_png_base64,
     genre_clicks_chart_png_base64,
+    get_platform_for_platform_manager,
+    top_genres_chart_png_base64,
 )
-from .services.platform_pdf import render_html_to_pdf_bytes
+from .services.director_dashboard_services import DirectorDashboardService
+from .services.platform_manager_dashboard_service import PlatformManagerDashboardService
 from .services.visualizations import register_visualization
 
 
@@ -106,7 +108,7 @@ class DashboardView(TemplateView):
         )
 
         if is_content_consumer:
-            profile = self.request.user.contentconsumer # type: ignore
+            profile = self.request.user.contentconsumer
             preferred_genres = profile.preferred_genres.all()
 
             if preferred_genres.exists():
@@ -201,6 +203,73 @@ class RegisterVisualizationView(LoginRequiredMixin, View):
         return JsonResponse({"ok": True})
 
 
+class PlatformAnalyticsDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = "analytics_dashboard/platform_manager_dashboard.html"
+    login_url = "/login/"
+    raise_exception = True
+
+    def test_func(self):
+        return user_has_role(self.request.user, ROLE_PLATFORM_MANAGER) and hasattr(
+            self.request.user, "plataformmanager"
+        )
+
+    def _get_filtered_dashboard(self):
+        platform = get_platform_for_platform_manager(self.request.user)
+        data = self.request.GET.copy()
+        if "platform" not in data:
+            data["platform"] = str(platform.pk)
+        form = PlatformAnalyticsFilterForm(data or None, platform=platform)
+
+        period = ""
+        content_type = ""
+        if form.is_valid():
+            period = form.cleaned_data.get("period") or ""
+            content_type = form.cleaned_data.get("content_type") or ""
+
+        dashboard = build_platform_dashboard_data(
+            platform,
+            period=period,
+            content_type=content_type,
+        )
+        return form, dashboard
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form, dashboard = self._get_filtered_dashboard()
+        service = PlatformManagerDashboardService(
+            platform=get_platform_for_platform_manager(self.request.user),
+            filters={
+                "period": form.cleaned_data.get("period") if form.is_valid() else "",
+                "content_type": form.cleaned_data.get("content_type") if form.is_valid() else "",
+            },
+        )
+        context.update(service.get_dashboard_context())
+        context["filter_form"] = form
+        context["dashboard"] = dashboard
+        context["export_querystring"] = self.request.GET.urlencode()
+        context["chart_data"] = {
+            "genreViews": [
+                {
+                    "label": row["genre__name"] or "Sense genere",
+                    "value": row["clicks"],
+                }
+                for row in dashboard.clicks_per_genre
+            ],
+            "contentTypeViews": [
+                {"label": row["label"], "value": row["clicks"]}
+                for row in dashboard.content_type_clicks
+            ],
+            "topGenres": [
+                {
+                    "label": row["genre__name"] or "Sense genere",
+                    "value": row["clicks"],
+                }
+                for row in dashboard.top_genres
+            ],
+        }
+        return context
+
+
 class PlatformAnalyticsPdfView(LoginRequiredMixin, UserPassesTestMixin, View):
     login_url = "/login/"
     raise_exception = True
@@ -211,56 +280,100 @@ class PlatformAnalyticsPdfView(LoginRequiredMixin, UserPassesTestMixin, View):
         )
 
     def get(self, request, *args, **kwargs):
+        from .services.platform_pdf import render_html_to_pdf_bytes
+
         platform = get_platform_for_platform_manager(request.user)
-        report = build_platform_report_data(platform)
-        chart_b64 = genre_clicks_chart_png_base64(report.clicks_per_genre)
+        data = request.GET.copy()
+        if "platform" not in data:
+            data["platform"] = str(platform.pk)
+        form = PlatformAnalyticsFilterForm(data or None, platform=platform)
+
+        period = ""
+        content_type = ""
+        if form.is_valid():
+            period = form.cleaned_data.get("period") or ""
+            content_type = form.cleaned_data.get("content_type") or ""
+
+        dashboard = build_platform_dashboard_data(
+            platform,
+            period=period,
+            content_type=content_type,
+        )
         html = render_to_string(
             "reports/platform_analytics_pdf.html",
-            {"report": report, "chart_b64": chart_b64},
+            {
+                "dashboard": dashboard,
+                "filter_form": form,
+                "genre_chart_b64": genre_clicks_chart_png_base64(dashboard.clicks_per_genre),
+                "content_type_chart_b64": content_type_chart_png_base64(dashboard.content_type_clicks),
+                "top_genres_chart_b64": top_genres_chart_png_base64(dashboard.top_genres),
+            },
             request=request,
         )
         pdf_bytes = render_html_to_pdf_bytes(html)
         response = HttpResponse(pdf_bytes, content_type="application/pdf")
         response["Content-Disposition"] = 'attachment; filename="informe-plataforma.pdf"'
         return response
-# ── Imports a afegir a la secció d'imports de views.py ──────────────
-# from .services.director_dashboard_service import DirectorDashboardService
-# ────────────────────────────────────────────────────────────────────
+
+
+class PlatformAnalyticsCsvView(LoginRequiredMixin, UserPassesTestMixin, View):
+    login_url = "/login/"
+    raise_exception = True
+
+    def test_func(self):
+        return user_has_role(self.request.user, ROLE_PLATFORM_MANAGER) and hasattr(
+            self.request.user, "plataformmanager"
+        )
+
+    def get(self, request, *args, **kwargs):
+        platform = get_platform_for_platform_manager(request.user)
+        data = request.GET.copy()
+        if "platform" not in data:
+            data["platform"] = str(platform.pk)
+        form = PlatformAnalyticsFilterForm(data or None, platform=platform)
+
+        period = ""
+        if form.is_valid():
+            period = form.cleaned_data.get("period") or ""
+
+        dashboard = build_platform_dashboard_data(platform, period=period)
+
+        response = HttpResponse(content_type="text/csv; charset=utf-8")
+        response["Content-Disposition"] = 'attachment; filename="analitica-plataforma.csv"'
+        response.write("\ufeff")
+        writer = csv.writer(response)
+        writer.writerow(["seccio", "element", "posicio", "visualitzacions", "valor"])
+        writer.writerow(["KPI", "Pellicules totals", "", "", dashboard.catalog_kpis.film_count])
+        writer.writerow(["KPI", "Series totals", "", "", dashboard.catalog_kpis.serie_count])
+        writer.writerow(["KPI", "Visualitzacions series", "", "", dashboard.report_kpis.serie_visualizations])
+        writer.writerow(["KPI", "Visualitzacions pellicules", "", "", dashboard.report_kpis.film_visualizations])
+
+        for index, row in enumerate(dashboard.top_films, start=1):
+            writer.writerow(["Top 3 pellicules", row["content__title"], index, row["clicks"], ""])
+
+        for index, row in enumerate(dashboard.top_series, start=1):
+            writer.writerow(["Top 3 series", row["content__title"], index, row["clicks"], ""])
+
+        return response
 
 
 class DirectorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
-
     login_url = "/login/"
-    raise_exception = True  # retorna 403 en lloc de redirigir al login
+    raise_exception = True
 
-    # ── Protecció de rol ─────────────────────────────────────────────
     def test_func(self):
-        # Mateix patró que PlatformAnalyticsPdfView
         return user_has_role(self.request.user, ROLE_GENERAL_DIRECTOR)
 
-    # ── Gestió de la petició GET ─────────────────────────────────────
     def get(self, request, *args, **kwargs):
-        filters = self._parse_filters(request.GET)
+        service = DirectorDashboardService(filters=self._parse_filters(request.GET))
+        return render(
+            request,
+            "analytics_dashboard/director_dashboard.html",
+            service.get_dashboard_context(),
+        )
 
-
-        service = DirectorDashboardService(filters=filters)
-
-        context = service.get_dashboard_context()
-
-        return render(request, "analytics_dashboard/director_dashboard.html", context)
-
-    # ── Helper privat: extreu i valida els filtres ───────────────────
-    @staticmethod   #No mira res dins el parametres
+    @staticmethod
     def _parse_filters(get_params) -> dict:
-        """
-        Llegeix els paràmetres GET i retorna un dict net.
-        Valors no esperats es descarten (mai es passen al servei).
-
-        Paràmetres acceptats:
-          period       → 'day' | 'week' | 'month'
-          content_type → 'film' | 'serie'
-          platform_id  → enter positiu
-        """
         filters = {}
 
         period = get_params.get("period")
@@ -276,3 +389,4 @@ class DirectorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
             filters["platform_id"] = int(platform_id)
 
         return filters
+

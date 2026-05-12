@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+
 urlpatterns = [
     path("login/", CustomLoginView.as_view(), name="login"),
     path("register/", RegisterView.as_view(), name="register"),
@@ -7,9 +8,11 @@ urlpatterns = [
         path('', home_redirect),  # raíz '/' redirige a /dashboard
 
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
+    path("platform/analytics/", PlatformAnalyticsDashboardView.as_view(), name="platform_analytics_dashboard"),
     path("profile/", ProfileView.as_view(), name="profile"),
     path("preferences/", PreferencesView.as_view(), name="preferences" ),
     path("visualizations/register/", RegisterVisualizationView.as_view(), name="register_visualization"),
     path("reports/platform-analytics.pdf", PlatformAnalyticsPdfView.as_view(), name="platform_analytics_pdf"),
     path("dashboard/director/", DirectorDashboardView.as_view(), name="director_dashboard"),
+    path("reports/platform-analytics.csv", PlatformAnalyticsCsvView.as_view(), name="platform_analytics_csv"),
 ]

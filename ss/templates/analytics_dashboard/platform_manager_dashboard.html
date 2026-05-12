@@ -1,0 +1,136 @@
+{% extends "analytics_dashboard/base_analytics_dashboard.html" %}
+
+{% block page_title %}Dashboard Gestor de Plataformes{% endblock %}
+{% block dashboard_icon %}{% endblock %}
+{% block dashboard_title %}{{ dashboard.platform_name }}{% endblock %}
+{% block dashboard_subtitle %}Dades filtrades exclusivament per la plataforma assignada al teu usuari.{% endblock %}
+
+{% block filters %}
+{% include "analytics_dashboard/components/filter_bar.html" with active_filters=active_filters show_platform_filter=True allow_all_platforms=False platforms=filter_options.platforms %}
+<div class="analytics-export-group">
+    <a class="analytics-export" href="{% url 'platform_analytics_pdf' %}{% if export_querystring %}?{{ export_querystring }}{% endif %}">Exportar PDF</a>
+    <a class="analytics-export analytics-export--secondary" href="{% url 'platform_analytics_csv' %}{% if export_querystring %}?{{ export_querystring }}{% endif %}">Exportar CSV</a>
+</div>
+{% endblock %}
+
+{% block kpis %}
+{% include "analytics_dashboard/components/kpi_card.html" with icon="FILM" label="Pel.licules al cataleg" value=dashboard.catalog_kpis.film_count %}
+{% include "analytics_dashboard/components/kpi_card.html" with icon="SERIE" label="Series al cataleg" value=dashboard.catalog_kpis.serie_count %}
+{% include "analytics_dashboard/components/kpi_card.html" with icon="VIEWS" label="Visualitzacions totals" value=dashboard.report_kpis.total_visualizations %}
+{% include "analytics_dashboard/components/kpi_card.html" with icon="SER" label="Visualitzacions de series" value=dashboard.report_kpis.serie_visualizations %}
+{% include "analytics_dashboard/components/kpi_card.html" with icon="FILM" label="Visualitzacions de pel.licules" value=dashboard.report_kpis.film_visualizations %}
+{% endblock %}
+
+{% block charts %}
+{% include "analytics_dashboard/components/chart_card.html" with chart_id="genreChart" title="Visualitzacions per genere" %}
+{% include "analytics_dashboard/components/chart_card.html" with chart_id="typeChart" title="Series vs Pel.licules" %}
+{% include "analytics_dashboard/components/chart_card.html" with chart_id="topGenresChart" title="Generes mes consumits" size="full" %}
+{% endblock %}
+
+{% block extra %}
+<section class="ad-table-section">
+    <div class="section-header">
+        <div>
+            <h2>Continguts mes vistos</h2>
+            <div class="section-sub">Taula generada amb el mateix agregat de visualitzacions filtrades.</div>
+        </div>
+    </div>
+    {% if dashboard.content_table %}
+        <div class="analytics-table-wrap">
+            <table class="analytics-table">
+                <thead>
+                    <tr>
+                        <th>Contingut</th>
+                        <th>Tipus</th>
+                        <th>Visualitzacions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in dashboard.content_table %}
+                        <tr>
+                            <td class="analytics-table__title">{{ row.content__title }}</td>
+                            <td><span class="analytics-type-pill">{{ row.tipus }}</span></td>
+                            <td class="analytics-table__num">{{ row.clicks }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-message">No hi ha visualitzacions per als filtres seleccionats.</div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{{ charts.visualizations_by_genre|json_script:"data-genre" }}
+{{ charts.visualizations_by_type|json_script:"data-type" }}
+{{ charts.top_genres|json_script:"data-top-genres" }}
+<script>
+function getData(id) {
+    return JSON.parse(document.getElementById(id).textContent);
+}
+const PALETTE = ['#e50914','#f5a623','#4a90d9','#7ed321','#9b59b6','#1abc9c','#e67e22','#b81d24'];
+function makeBarChart(canvasId, chartData, label) {
+    label = label || 'Visualitzacions';
+    var ctx = document.getElementById(canvasId);
+    if (!ctx || !chartData.labels.length) return;
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: [{ label: label, data: chartData.data, backgroundColor: PALETTE, borderRadius: 4 }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { color: '#b3b3b3', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                x: { ticks: { color: '#b3b3b3' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    });
+}
+function makeHorizontalBarChart(canvasId, chartData) {
+    var ctx = document.getElementById(canvasId);
+    if (!ctx || !chartData.labels.length) return;
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: [{ label: 'Top', data: chartData.data, backgroundColor: PALETTE, borderRadius: 4 }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { color: '#b3b3b3', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#b3b3b3' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    });
+}
+function makeDoughnutChart(canvasId, chartData) {
+    var ctx = document.getElementById(canvasId);
+    if (!ctx || !chartData.labels.length) return;
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: chartData.labels,
+            datasets: [{ data: chartData.data, backgroundColor: ['#e50914','#4a90d9'], borderWidth: 0 }]
+        },
+        options: {
+            responsive: true,
+            cutout: '62%',
+            plugins: { legend: { position: 'bottom', labels: { color: '#b3b3b3', padding: 16 } } }
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    makeBarChart('genreChart', getData('data-genre'));
+    makeDoughnutChart('typeChart', getData('data-type'));
+    makeHorizontalBarChart('topGenresChart', getData('data-top-genres'));
+});
+</script>
+{% endblock %}
