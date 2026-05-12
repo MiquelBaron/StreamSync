@@ -186,6 +186,38 @@
                     {% endif %}
                 {% endwith %}
             </div>
+            <hr class="ss-modal__divider">
+
+            <div class="ss-modal__reviews-section">
+                {# --- FORMULARI PER ESCRIURE (Només Consumidors) --- #}
+                {% if user.is_authenticated and is_content_consumer %}
+                    <div class="ss-add-review">
+                        <h4>Escriu la teva opinió</h4> <br>
+                        <form action="{% url 'add_review' item.id %}" method="post">
+                            {% csrf_token %}
+                            <textarea name="description" class="nf-input" rows="4" required placeholder="Comparteix la teva opinió amb altres usuaris..."></textarea>
+                            <button type="submit" class="search-submit-btn">Publicar ressenya</button>
+                        </form>
+                    </div>
+                {% endif %} <br>
+
+                <h3>Ressenyes de la comunitat</h3> <br>
+                {# --- LLISTA DE RESSENYES --- #}
+                <div class="ss-reviews-list">
+                    {% for review in item.reviews.all %}
+                        <div class="ss-review-item">
+                            <div class="ss-review-header">
+                                <strong>{{ review.user.username }}</strong>
+                                <span>{{ review.created_at|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p>{{ review.description }}</p>
+                        </div>
+                    {% empty %}
+                        <p class="empty-message">Encara no hi ha ressenyes.</p>
+                    {% endfor %}
+                </div>
+
+            </div>
 
         </div>
     </div>

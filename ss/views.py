@@ -390,3 +390,19 @@ class DirectorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         return filters
 
+
+
+class ReviewView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Review
+    form_class = ReviewForm
+
+    def test_func(self):
+        return user_has_role(self.request.user, ROLE_CONTENT_CONSUMER)
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.content_id = self.kwargs['content_id']
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('dashboard') # O tornar a la mateixa pàgina

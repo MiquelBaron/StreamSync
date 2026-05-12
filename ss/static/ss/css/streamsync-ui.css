@@ -999,6 +999,7 @@ body.auth-page {
 }
 
 .ss-modal__watch-btn-wrap {
+    margin-bottom: 5rem;
     position: relative;
     display: inline-block;
 }
@@ -1876,5 +1877,78 @@ body.auth-page {
     }
 }
 
+/* —— Reviews —— */
 
+/* Contenidor del formulari */
+.ss-add-review {
+    margin: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03); 
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+.ss-add-review form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+/* El quadre de text */
+.ss-add-review textarea.nf-input {
+    width: 100%;
+    background: #333;
+    color: white;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 1rem;
+    line-height: 1.4;
+
+    resize: none;
+
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.ss-add-review textarea.nf-input:focus {
+    background: #454545;
+    border-color: var(--nf-red);
+    outline: none;
+}
+
+/* El botó de publicar */
+.ss-add-review .search-submit-btn {
+    width: 20%; /* El fem ample per a mòbils i més fàcil de clicar */
+    margin-top: 1rem;
+    padding: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.ss-review-item {
+    background: #222;
+    border-left: 3px solid var(--nf-red);
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.ss-review-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.ss-review-header strong {
+    color: #e5e5e5;
+    font-size: 0.9rem;
+}
+
+.ss-review-header span {
+    color: #777;
+    font-size: 0.8rem;
+}
+
+.ss-review-item p {
+    color: #ccc;
+}
 

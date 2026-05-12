@@ -4,7 +4,7 @@ from .views import *
 urlpatterns = [
     path("login/", CustomLoginView.as_view(), name="login"),
     path("register/", RegisterView.as_view(), name="register"),
-    path("logout/", CustomLogoutView.as_view(), name="logout"),
+    path("logout        /", CustomLogoutView.as_view(), name="logout"), 
         path('', home_redirect),  # raíz '/' redirige a /dashboard
 
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
@@ -15,4 +15,5 @@ urlpatterns = [
     path("reports/platform-analytics.pdf", PlatformAnalyticsPdfView.as_view(), name="platform_analytics_pdf"),
     path("dashboard/director/", DirectorDashboardView.as_view(), name="director_dashboard"),
     path("reports/platform-analytics.csv", PlatformAnalyticsCsvView.as_view(), name="platform_analytics_csv"),
+    path("content/<int:content_id>/review/", ReviewView.as_view(), name="add_review"),
 ]
