@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views import View
@@ -390,3 +390,22 @@ class DirectorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         return filters
 
+
+
+class ReviewView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Review
+    form_class = ReviewForm
+
+    def test_func(self):
+        return user_has_role(self.request.user, ROLE_CONTENT_CONSUMER)
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.content_id = self.kwargs['content_id']
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        content_id = self.kwargs['content_id']
+        url = reverse('dashboard')
+
+        return f"{url}#content-{content_id}"

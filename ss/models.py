@@ -221,3 +221,16 @@ class ApiKey(models.Model):
 
     def __str__(self):
         return f"{self.platform.name} - {self.api_key}"
+
+
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
+    content = models.ForeignKey(Content, on_delete=models.CASCADE, related_name="reviews")
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at'] # Les més recents primer
+
+    def __str__(self):
+        return f"Review de {self.user.username} sobre {self.content.title}"
