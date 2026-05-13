@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import Group
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
@@ -240,6 +241,8 @@ class UserManagementView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         if action == "delete":
             return self._delete_user(request)
+        if action == "update_role":
+            return self._update_user_role(request)
 
         create_form = UserCreateForm(request.POST)
         if create_form.is_valid():
@@ -269,10 +272,32 @@ class UserManagementView(LoginRequiredMixin, UserPassesTestMixin, View):
         messages.success(request, f"L'usuari '{username}' s'ha eliminat correctament.")
         return redirect("user_management")
 
+    def _update_user_role(self, request):
+        User = get_user_model()
+        user_id = request.POST.get("user_id")
+        role_id = request.POST.get("role")
+
+        try:
+            user_to_update = User.objects.get(pk=user_id)
+            selected_role = app_role_groups().get(pk=role_id)
+        except (User.DoesNotExist, Group.DoesNotExist, ValueError, TypeError):
+            messages.error(request, "No s'ha pogut actualitzar el rol de l'usuari.")
+            return redirect("user_management")
+
+        current_app_roles = app_role_groups()
+        user_to_update.groups.remove(*current_app_roles)
+        user_to_update.groups.add(selected_role)
+        messages.success(
+            request,
+            f"El rol de '{user_to_update.username}' s'ha actualitzat a '{selected_role.name}'.",
+        )
+        return redirect("user_management")
+
     def _render(self, request, create_form=None, show_create_form=False):
         ensure_role_groups()
         User = get_user_model()
 
+        role_options = app_role_groups()
         role_filter_form = UserRoleFilterForm(request.GET or None)
         users = User.objects.prefetch_related("groups").order_by("username")
 
@@ -282,8 +307,19 @@ class UserManagementView(LoginRequiredMixin, UserPassesTestMixin, View):
             if selected_role is not None:
                 users = users.filter(groups=selected_role)
 
+        app_role_ids = set(role_options.values_list("pk", flat=True))
+        user_rows = []
+        for listed_user in users:
+            current_role = next(
+                (group for group in listed_user.groups.all() if group.pk in app_role_ids),
+                None,
+            )
+            user_rows.append({"user": listed_user, "current_role": current_role})
+
         context = {
-            "users": users,
+            "user_rows": user_rows,
+            "users_count": len(user_rows),
+            "role_options": role_options,
             "role_filter_form": role_filter_form,
             "selected_role": selected_role,
             "create_form": create_form or UserCreateForm(),

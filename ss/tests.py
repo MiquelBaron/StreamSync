@@ -7,6 +7,7 @@ from datetime import timedelta
 from .forms import ContentSearchForm
 from .models import (
     AgeRating,
+    ContentConsumer,
     Country,
     Director,
     Film,
@@ -18,7 +19,13 @@ from .models import (
     Serie,
     Visualization,
 )
-from .roles import ROLE_PLATFORM_MANAGER, ROLE_TECHNICAL_ADMIN, ensure_role_groups, get_role_group
+from .roles import (
+    ROLE_CONTENT_CONSUMER,
+    ROLE_PLATFORM_MANAGER,
+    ROLE_TECHNICAL_ADMIN,
+    ensure_role_groups,
+    get_role_group,
+)
 from .search import DatabaseContentSearchService, SearchCriteria
 
 
@@ -277,6 +284,91 @@ class UserManagementTests(TestCase):
         self.assertTrue(user.check_password("secret123"))
         self.assertEqual(user.email, "nou@example.com")
         self.assertTrue(user.groups.filter(pk=role.pk).exists())
+
+    def test_technical_admin_can_update_existing_user_role(self):
+        self.client.force_login(self.technical_admin)
+        role = get_role_group(ROLE_TECHNICAL_ADMIN)
+
+        response = self.client.post(
+            reverse("user_management"),
+            {
+                "action": "update_role",
+                "user_id": self.regular_user.pk,
+                "role": role.pk,
+            },
+        )
+
+        self.assertRedirects(response, reverse("user_management"))
+        self.assertTrue(self.regular_user.groups.filter(pk=role.pk).exists())
+
+    def test_technical_admin_can_update_existing_user_to_consumer_role(self):
+        self.client.force_login(self.technical_admin)
+        role = get_role_group(ROLE_CONTENT_CONSUMER)
+
+        response = self.client.post(
+            reverse("user_management"),
+            {
+                "action": "update_role",
+                "user_id": self.regular_user.pk,
+                "role": role.pk,
+            },
+        )
+
+        self.assertRedirects(response, reverse("user_management"))
+        self.assertTrue(get_user_model().objects.filter(pk=self.regular_user.pk).exists())
+        self.assertTrue(ContentConsumer.objects.filter(pk=self.regular_user.pk).exists())
+        self.assertTrue(self.regular_user.groups.filter(pk=role.pk).exists())
+
+    def test_technical_admin_can_update_consumer_to_other_role_without_deleting_user(self):
+        consumer_role = get_role_group(ROLE_CONTENT_CONSUMER)
+        self.regular_user.groups.add(consumer_role)
+        self.assertTrue(ContentConsumer.objects.filter(pk=self.regular_user.pk).exists())
+
+        self.client.force_login(self.technical_admin)
+        technical_role = get_role_group(ROLE_TECHNICAL_ADMIN)
+
+        response = self.client.post(
+            reverse("user_management"),
+            {
+                "action": "update_role",
+                "user_id": self.regular_user.pk,
+                "role": technical_role.pk,
+            },
+        )
+
+        self.assertRedirects(response, reverse("user_management"))
+        self.assertTrue(get_user_model().objects.filter(pk=self.regular_user.pk).exists())
+        self.assertFalse(ContentConsumer.objects.filter(pk=self.regular_user.pk).exists())
+        self.assertTrue(self.regular_user.groups.filter(pk=technical_role.pk).exists())
+
+    def test_updating_one_consumer_role_does_not_change_other_consumers(self):
+        User = get_user_model()
+        consumer_role = get_role_group(ROLE_CONTENT_CONSUMER)
+        other_consumer = User.objects.create_user(
+            username="altre_consumidor",
+            password="secret123",
+            email="altre@example.com",
+        )
+        self.regular_user.groups.add(consumer_role)
+        other_consumer.groups.add(consumer_role)
+
+        self.client.force_login(self.technical_admin)
+        technical_role = get_role_group(ROLE_TECHNICAL_ADMIN)
+
+        response = self.client.post(
+            reverse("user_management"),
+            {
+                "action": "update_role",
+                "user_id": self.regular_user.pk,
+                "role": technical_role.pk,
+            },
+        )
+
+        self.assertRedirects(response, reverse("user_management"))
+        self.assertTrue(self.regular_user.groups.filter(pk=technical_role.pk).exists())
+        self.assertFalse(self.regular_user.groups.filter(pk=consumer_role.pk).exists())
+        self.assertTrue(other_consumer.groups.filter(pk=consumer_role.pk).exists())
+        self.assertFalse(other_consumer.groups.filter(pk=technical_role.pk).exists())
 
     def test_technical_admin_can_delete_user_with_confirmation_post(self):
         self.client.force_login(self.technical_admin)

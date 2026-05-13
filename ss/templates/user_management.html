@@ -65,7 +65,7 @@
     <section class="user-list" aria-labelledby="user-list-title">
         <div class="user-list__header">
             <h2 id="user-list-title">Usuaris del sistema</h2>
-            <span>{{ users|length }} usuari{{ users|length|pluralize }}</span>
+            <span>{{ users_count }} usuari{{ users_count|pluralize }}</span>
         </div>
 
         <div class="user-list__columns" aria-hidden="true">
@@ -76,8 +76,8 @@
             <span></span>
         </div>
 
-        {% for listed_user in users %}
-            {% include "components/user_management_line.html" with listed_user=listed_user %}
+        {% for row in user_rows %}
+            {% include "components/user_management_line.html" with listed_user=row.user current_role=row.current_role role_options=role_options %}
         {% empty %}
             <div class="empty-message">No s'han trobat usuaris amb aquest rol.</div>
         {% endfor %}

@@ -531,6 +531,38 @@ body.nf-body {
     font-weight: 700;
 }
 
+.user-role-update-form {
+    display: grid;
+    grid-template-columns: minmax(8rem, 1fr) auto;
+    gap: 0.45rem;
+    align-items: center;
+}
+
+.user-role-update-form select {
+    width: 100%;
+    min-height: 2.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    background: #050505;
+    color: var(--nf-white);
+    padding: 0.5rem 0.65rem;
+}
+
+.user-role-save {
+    min-height: 2.35rem;
+    border: 1px solid rgba(229, 9, 20, 0.45);
+    border-radius: 6px;
+    background: rgba(229, 9, 20, 0.16);
+    color: #fff;
+    font-weight: 800;
+    padding: 0 0.75rem;
+    cursor: pointer;
+}
+
+.user-role-save:hover {
+    background: var(--nf-red);
+}
+
 .user-management-line__actions {
     display: flex;
     justify-content: flex-end;
@@ -582,6 +614,10 @@ body.nf-body {
 
     .user-management-line__actions {
         justify-content: flex-start;
+    }
+
+    .user-role-update-form {
+        grid-template-columns: 1fr;
     }
 }
 
