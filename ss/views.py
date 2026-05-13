@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views import View
@@ -405,4 +405,7 @@ class ReviewView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('dashboard') # O tornar a la mateixa pàgina
+        content_id = self.kwargs['content_id']
+        url = reverse('dashboard')
+
+        return f"{url}#content-{content_id}"
