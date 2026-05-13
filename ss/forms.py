@@ -9,6 +9,7 @@ from .roles import ROLE_DEFINITIONS
 
 def app_role_groups():
     return Group.objects.filter(name__in=ROLE_DEFINITIONS.values()).order_by("name")
+from .models import*
 
 class ContentSearchForm(forms.Form):
     title = forms.CharField(
@@ -203,3 +204,16 @@ class PlatformAnalyticsFilterForm(forms.Form):
         if platform is not None:
             self.fields["platform"].queryset = Platform.objects.filter(pk=platform.pk)
             self.fields["platform"].initial = platform
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['description']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'class': 'nf-input',
+                'placeholder': 'Què t\'ha semblat?',
+                'rows': 3
+            }),
+        }

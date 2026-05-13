@@ -265,6 +265,25 @@
         alert(`Redirigint a ${platformName}…\n(Simulació — en producció obrirà la plataforma real.)`);
     }
 
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Mirem si la URL té un hash (ex: #content-5)
+        const hash = window.location.hash;
+
+        if (hash && hash.startsWith('#content-')) {
+            const contentId = hash.replace('#content-', '');
+            // 2. Busquem la targeta que té aquest ID
+            const targetCard = document.getElementById('content-' + contentId);
+
+            if (targetCard) {
+                // 3. Simulem un clic a la targeta per obrir el modal
+                // (Ajusta el selector si el teu botó d'obrir té una altra classe)
+                targetCard.click();
+
+                // 4. Opcional: Netegem la URL perquè si l'usuari refresca manualment no s'obri sol
+                window.history.replaceState(null, null, window.location.pathname);
+            }
+        }
+    });
 
 
 
