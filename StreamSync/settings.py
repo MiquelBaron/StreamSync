@@ -81,14 +81,8 @@ WSGI_APPLICATION = 'StreamSync.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# SQLite al directori del projecte. Per Docker/overrides: DJANGO_SQLITE_PATH.
 _sqlite_default = BASE_DIR / "db.sqlite3"
-if os.name == "nt" and "OneDrive" in str(BASE_DIR):
-    _sqlite_default = (
-        Path(os.environ.get("LOCALAPPDATA", BASE_DIR))
-        / "StreamSync"
-        / "db.sqlite3"
-    )
-    _sqlite_default.parent.mkdir(parents=True, exist_ok=True)
 _sqlite_override = os.environ.get("DJANGO_SQLITE_PATH", "").strip()
 DATABASES = {
     "default": {

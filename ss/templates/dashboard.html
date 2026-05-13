@@ -19,6 +19,20 @@
         <h1 class="nf-hero__title">Milers de pel·lícules i sèries</h1>
         <p class="nf-hero__lead">Descobreix el teu proper favorit. Cerca per títol, director, gènere o edat.</p>
 
+        {% if not user.is_authenticated %}
+        <div class="nf-auth-hint" role="note" aria-label="Informació per a convidats">
+            <p class="nf-auth-hint__text">
+                Pots explorar el catàleg sense compte.
+                <strong>Inicia sessió</strong> per desar <strong>preferències</strong> de gèneres,
+                <strong>registrar visualitzacions</strong> i <strong>publicar ressenyes</strong>.
+            </p>
+            <p class="nf-auth-hint__actions">
+                <a class="nf-auth-hint__btn" href="{% url 'login' %}">Iniciar sessió</a>
+                <a class="nf-auth-hint__link" href="{% url 'register' %}">Crear compte</a>
+            </p>
+        </div>
+        {% endif %}
+
         <form method="get" action="" style="width:100%;">
             <div class="search-master-container">
                 <div class="search-primary-bar">

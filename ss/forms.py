@@ -66,6 +66,33 @@ class PreferencesForm(forms.ModelForm):
         return genres
 
 
+class ProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = get_user_model()
+        fields = ("username", "email", "first_name", "last_name")
+        labels = {
+            "username": "Nom d'usuari",
+            "email": "Correu electrònic",
+            "first_name": "Nom",
+            "last_name": "Cognoms",
+        }
+        widgets = {
+            "username": forms.TextInput(
+                attrs={"class": "profile-form__input", "autocomplete": "username"}
+            ),
+            "email": forms.EmailInput(
+                attrs={"class": "profile-form__input", "autocomplete": "email"}
+            ),
+            "first_name": forms.TextInput(
+                attrs={"class": "profile-form__input", "autocomplete": "given-name"}
+            ),
+            "last_name": forms.TextInput(
+                attrs={"class": "profile-form__input", "autocomplete": "family-name"}
+            ),
+        }
+
+
 class IncidenceForm(forms.ModelForm):
     class Meta:
         model = Incidence

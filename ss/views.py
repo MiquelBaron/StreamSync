@@ -105,11 +105,13 @@ class DashboardView(TemplateView):
             .order_by("-rating")[:10]
         )
         preferred_content = []
-        is_content_consumer = (
-            self.request.user.is_authenticated
-            and user_has_role(self.request.user, ROLE_CONTENT_CONSUMER)
-            and hasattr(self.request.user, "contentconsumer")
-        )
+        is_content_consumer = False
+        if self.request.user.is_authenticated:
+            ensure_role_groups()
+            is_content_consumer = (
+                user_has_role(self.request.user, ROLE_CONTENT_CONSUMER)
+                and hasattr(self.request.user, "contentconsumer")
+            )
 
         if is_content_consumer:
             profile = self.request.user.contentconsumer
@@ -162,12 +164,25 @@ class PreferencesView(LoginRequiredMixin, UpdateView):
         return self.request.user.contentconsumer
 
 
-class ProfileView(LoginRequiredMixin, TemplateView):
+class ProfileView(LoginRequiredMixin, UpdateView):
+    """Perfil amb dades editables (User); el rol és només lectura."""
+
+    model = get_user_model()
+    form_class = ProfileForm
     template_name = "profile_page.html"
+    success_url = reverse_lazy("profile")
     login_url = "/login/"
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        messages.success(self.request, "Perfil actualitzat correctament.")
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        ensure_role_groups()
         user = self.request.user
         if user.groups.exists():
             profile_role = user.groups.first().name

@@ -14,6 +14,7 @@ from ss.models import (
     Film,
     Platform,
     PlataformManager,
+    Review,
     Serie,
     Visualization,
 )
@@ -225,3 +226,44 @@ def run_populate_demo_visualizations(stdout_write, style):
         )
         n += 1
     stdout_write(style.SUCCESS(f"S'han creat {n} visualitzacions demo (aleatòries)."))
+
+
+_REVIEW_TEXTS_CA = (
+    "Molt bé, la recomano.",
+    "Entretinguda.",
+    "Bona fotografia.",
+    "M'ha agradat el ritme.",
+    "Final una mica fluix.",
+    "Ideal per un cap de setmana.",
+    "No m'ha acabat de convèncer.",
+    "Guió sòlid.",
+    "Curta i al gra.",
+    "Es fa llarga.",
+    "Actors molt encertats.",
+    "Trama previsible.",
+    "Vale la pena.",
+    "Correcta, sense sorpreses.",
+)
+
+
+def run_populate_demo_film_reviews(stdout_write, style, count: int = 24):
+    """Ressenyes curtes en català sobre pel·lícules (usuaris no superuser)."""
+    User = get_user_model()
+    films = list(Film.objects.filter(is_active=True))
+    users = list(User.objects.filter(is_superuser=False))
+    if not films:
+        stdout_write(style.WARNING("Cap pel·lícula: omet ressenyes (sync_catalog)."))
+        return
+    if not users:
+        stdout_write(style.WARNING("Cap usuari: omet ressenyes."))
+        return
+
+    n = 0
+    for _ in range(min(count, max(1, len(films) * 4))):
+        Review.objects.create(
+            user=random.choice(users),
+            content=random.choice(films),
+            description=random.choice(_REVIEW_TEXTS_CA),
+        )
+        n += 1
+    stdout_write(style.SUCCESS(f"S'han creat {n} ressenyes demo (pel·lícules, CA)."))

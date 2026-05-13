@@ -133,6 +133,18 @@ class SearchTests(TestCase):
         results = service.search(SearchCriteria(title="", min_age=0))
         self.assertEqual([item["title"] for item in results], ["Dune", "El Duel", "El Laboratori"])
 
+    def test_dashboard_shows_guest_auth_hint_when_anonymous(self):
+        response = self.client.get(reverse("dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "nf-auth-hint")
+        self.assertContains(response, "registrar visualitzacions")
+
+    def test_dashboard_hides_guest_auth_hint_when_logged_in(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "nf-auth-hint")
+
     def test_dashboard_renders_all_content_with_default_filters(self):
         self.client.force_login(self.user)
         response = self.client.get(
@@ -172,7 +184,25 @@ class SearchTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "tester")
         self.assertContains(response, "tester@example.com")
-        self.assertContains(response, "Contingut marcat com a preferit")
+        self.assertContains(response, "Desar canvis")
+        self.assertContains(response, "Informaci")
+
+    def test_profile_page_post_updates_email(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse("profile"),
+            {
+                "username": "tester",
+                "email": "nou@example.com",
+                "first_name": "Nom",
+                "last_name": "Cognom",
+            },
+        )
+        self.assertRedirects(response, reverse("profile"))
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "nou@example.com")
+        self.assertEqual(self.user.first_name, "Nom")
+        self.assertEqual(self.user.last_name, "Cognom")
 
     def test_profile_page_shows_admin_role_for_superuser_without_groups(self):
         self.user.is_staff = True
