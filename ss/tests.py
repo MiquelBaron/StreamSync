@@ -11,6 +11,7 @@ from .models import (
     Director,
     Film,
     Genre,
+    Incidence,
     Language,
     PlataformManager,
     Platform,
@@ -176,6 +177,23 @@ class SearchTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Administrador")
+
+    def test_authenticated_user_can_report_incidence(self):
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("report_incidence"),
+            {
+                "name": "Error al cercador",
+                "description": "La cerca no retorna els resultats esperats.",
+            },
+            HTTP_REFERER=reverse("dashboard"),
+        )
+
+        self.assertRedirects(response, reverse("dashboard"))
+        incidence = Incidence.objects.get(name="Error al cercador")
+        self.assertEqual(incidence.user, self.user)
+        self.assertEqual(incidence.description, "La cerca no retorna els resultats esperats.")
 
 
 class PlatformAnalyticsDashboardTests(TestCase):

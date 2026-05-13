@@ -1,6 +1,7 @@
 import csv
 import json
 
+from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
@@ -201,6 +202,22 @@ class RegisterVisualizationView(LoginRequiredMixin, View):
         except ValueError as e:
             return JsonResponse({"ok": False, "error": str(e)}, status=400)
         return JsonResponse({"ok": True})
+
+
+class ReportIncidenceView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
+    def post(self, request, *args, **kwargs):
+        form = IncidenceForm(request.POST)
+        if form.is_valid():
+            incidence = form.save(commit=False)
+            incidence.user = request.user
+            incidence.save()
+            messages.success(request, "La incidencia s'ha enviat correctament.")
+        else:
+            messages.error(request, "Revisa el titol i la descripcio de la incidencia.")
+
+        return redirect(request.META.get("HTTP_REFERER") or "dashboard")
 
 
 class PlatformAnalyticsDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):

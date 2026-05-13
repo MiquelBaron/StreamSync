@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Genre, ContentConsumer, Platform
+from .models import Genre, ContentConsumer, Platform, Incidence
 from .models import AgeRating
 
 class ContentSearchForm(forms.Form):
@@ -56,6 +56,31 @@ class PreferencesForm(forms.ModelForm):
         if genres and genres.count() > 3:
             raise forms.ValidationError("Només pots seleccionar un màxim de 3 gèneres.")
         return genres
+
+
+class IncidenceForm(forms.ModelForm):
+    class Meta:
+        model = Incidence
+        fields = ["name", "description"]
+        labels = {
+            "name": "Titol",
+            "description": "Descripcio",
+        }
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "incidence-modal__input",
+                    "placeholder": "Resumeix la incidencia",
+                }
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "incidence-modal__textarea",
+                    "placeholder": "Explica que ha passat",
+                    "rows": 5,
+                }
+            ),
+        }
 
 
 class PlatformAnalyticsFilterForm(forms.Form):

@@ -138,6 +138,197 @@ body.nf-body {
     align-items: center;
 }
 
+.nf-btn-incidence {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    padding: 0.45rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.nf-btn-incidence:hover {
+    background: rgba(229, 9, 20, 0.28);
+    border-color: rgba(229, 9, 20, 0.7);
+}
+
+.nf-messages {
+    position: fixed;
+    top: calc(var(--nf-header-h) + 0.75rem);
+    right: 4%;
+    z-index: 650;
+    display: grid;
+    gap: 0.5rem;
+    max-width: min(360px, 92vw);
+}
+
+.nf-message {
+    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    background: #181818;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    font-size: 0.86rem;
+}
+
+.nf-message--success {
+    border-left: 4px solid #22c55e;
+}
+
+.nf-message--error {
+    border-left: 4px solid var(--nf-red);
+}
+
+.incidence-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 600;
+    background: rgba(0, 0, 0, 0.82);
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.incidence-modal.is-open {
+    display: flex;
+}
+
+.incidence-modal__box {
+    position: relative;
+    width: min(520px, 100%);
+    background: #181818;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+    padding: 1.5rem;
+}
+
+.ss-modal .incidence-modal__box {
+    padding: 0;
+}
+
+.incidence-modal__close {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.58);
+    color: #fff;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.incidence-modal__close:hover {
+    background: var(--nf-red);
+}
+
+.incidence-modal__header {
+    padding-right: 2.5rem;
+    margin-bottom: 1.2rem;
+}
+
+.ss-modal .incidence-modal__header {
+    display: block;
+    padding: 1.5rem 1.5rem 1rem;
+    margin-bottom: 0;
+}
+
+.incidence-modal__header h2 {
+    font-size: 1.35rem;
+    margin-bottom: 0.35rem;
+}
+
+.incidence-modal__header p {
+    color: var(--nf-gray);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.incidence-modal__form {
+    display: grid;
+    gap: 1rem;
+}
+
+.incidence-modal__field {
+    display: grid;
+    gap: 0.4rem;
+}
+
+.incidence-modal__field span {
+    color: var(--nf-gray);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.incidence-modal__input,
+.incidence-modal__textarea {
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #2f2f2f;
+    color: #fff;
+    padding: 0.8rem 0.9rem;
+    font: inherit;
+    outline: none;
+}
+
+.incidence-modal__textarea {
+    resize: vertical;
+    min-height: 130px;
+}
+
+.incidence-modal__input:focus,
+.incidence-modal__textarea:focus {
+    border-color: rgba(229, 9, 20, 0.75);
+    background: #333;
+}
+
+.incidence-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.ss-modal .incidence-modal__actions {
+    margin-top: 0.25rem;
+}
+
+.incidence-modal__cancel,
+.incidence-modal__submit {
+    border: none;
+    border-radius: 4px;
+    padding: 0.65rem 1.1rem;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.incidence-modal__cancel {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.incidence-modal__cancel:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.incidence-modal__submit {
+    background: var(--nf-red);
+}
+
+.incidence-modal__submit:hover {
+    background: var(--nf-red-hover);
+}
+
 
 
 /* —— Hero + cerca —— */
@@ -458,6 +649,13 @@ body.nf-body {
     .nf-nav {
         width: 100%;
         order: 3;
+    }
+    .nf-header__right {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    .nf-profile {
+        flex-wrap: wrap;
     }
     .search-primary-bar {
         flex-wrap: wrap;
