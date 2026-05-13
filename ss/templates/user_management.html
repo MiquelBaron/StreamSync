@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestio d'usuaris</title>
+    <link rel="stylesheet" href="{% static 'ss/css/streamsync-ui.css' %}">
+</head>
+<body class="nf-body">
+
+{% include "components/navbar.html" %}
+
+<main class="user-management-page">
+    <section class="user-management-hero">
+        <div>
+            <h1>Gestio d'usuaris</h1>
+            <p>Administra els comptes del sistema i filtra'ls per rol.</p>
+        </div>
+        <button class="search-submit-btn user-create-toggle" type="button" onclick="toggleUserCreateForm()">
+            Crear usuari
+        </button>
+    </section>
+
+    <section id="user-create-panel" class="user-create-panel{% if show_create_form %} is-open{% endif %}">
+        <form method="post" class="user-create-form" novalidate>
+            {% csrf_token %}
+
+            <div class="user-create-form__grid">
+                {% for field in create_form %}
+                    <label class="user-create-form__field{% if field.field.widget.input_type == 'checkbox' %} user-create-form__field--check{% endif %}" for="{{ field.id_for_label }}">
+                        <span>{{ field.label }}</span>
+                        {{ field }}
+                        {% if field.errors %}
+                            <small>{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </label>
+                {% endfor %}
+            </div>
+
+            {% if create_form.non_field_errors %}
+                <div class="error-badge">{{ create_form.non_field_errors|striptags }}</div>
+            {% endif %}
+
+            <div class="actions-bar">
+                <button type="submit" class="search-submit-btn">Guardar usuari</button>
+                <button type="button" class="clear-filters-link" onclick="toggleUserCreateForm(false)">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="user-management-toolbar">
+        <form method="get" class="user-role-filter">
+            <label for="{{ role_filter_form.role.id_for_label }}">
+                <span>Filtrar per rol</span>
+                {{ role_filter_form.role }}
+            </label>
+            <button type="submit" class="search-submit-btn">Filtrar</button>
+            <a class="clear-filters-link" href="{% url 'user_management' %}">Netejar filtres</a>
+        </form>
+    </section>
+
+    <section class="user-list" aria-labelledby="user-list-title">
+        <div class="user-list__header">
+            <h2 id="user-list-title">Usuaris del sistema</h2>
+            <span>{{ users|length }} usuari{{ users|length|pluralize }}</span>
+        </div>
+
+        <div class="user-list__columns" aria-hidden="true">
+            <span>Nom</span>
+            <span>Correu electronic</span>
+            <span>Rol</span>
+            <span>Data de creacio</span>
+            <span></span>
+        </div>
+
+        {% for listed_user in users %}
+            {% include "components/user_management_line.html" with listed_user=listed_user %}
+        {% empty %}
+            <div class="empty-message">No s'han trobat usuaris amb aquest rol.</div>
+        {% endfor %}
+    </section>
+</main>
+
+<script>
+function toggleUserCreateForm(forceOpen) {
+    const panel = document.getElementById("user-create-panel");
+    if (!panel) return;
+    const shouldOpen = typeof forceOpen === "boolean"
+        ? forceOpen
+        : !panel.classList.contains("is-open");
+    panel.classList.toggle("is-open", shouldOpen);
+    if (shouldOpen) {
+        const firstInput = panel.querySelector("input, select, textarea");
+        if (firstInput) firstInput.focus();
+    }
+}
+</script>
+</body>
+</html>

@@ -35,6 +35,12 @@
                     Dashboard
                 </a>
             {% endif %}
+
+            {% if user|has_role:"technical_admin" %}
+                <a class="nf-nav__link" href="{% url 'user_management' %}">
+                    Gestionar usuaris
+                </a>
+            {% endif %}
         </nav>
     </div>
     {% if user.is_authenticated %}

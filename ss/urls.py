@@ -11,6 +11,7 @@ urlpatterns = [
     path("platform/analytics/", PlatformAnalyticsDashboardView.as_view(), name="platform_analytics_dashboard"),
     path("profile/", ProfileView.as_view(), name="profile"),
     path("preferences/", PreferencesView.as_view(), name="preferences" ),
+    path("users/", UserManagementView.as_view(), name="user_management"),
     path("visualizations/register/", RegisterVisualizationView.as_view(), name="register_visualization"),
     path("incidences/report/", ReportIncidenceView.as_view(), name="report_incidence"),
     path("reports/platform-analytics.pdf", PlatformAnalyticsPdfView.as_view(), name="platform_analytics_pdf"),

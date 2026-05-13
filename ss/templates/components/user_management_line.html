@@ -1,0 +1,52 @@
+{% load tz %}
+
+<article class="user-management-line">
+    <div class="user-management-line__cell" data-label="Nom">
+        <strong>
+            {% if listed_user.get_full_name %}
+                {{ listed_user.get_full_name }}
+            {% else %}
+                {{ listed_user.username }}
+            {% endif %}
+        </strong>
+        <small>@{{ listed_user.username }}</small>
+    </div>
+
+    <div class="user-management-line__cell" data-label="Correu electronic">
+        {% if listed_user.email %}
+            {{ listed_user.email }}
+        {% else %}
+            <span class="user-muted">Sense correu</span>
+        {% endif %}
+    </div>
+
+    <div class="user-management-line__cell" data-label="Rol">
+        {% for group in listed_user.groups.all %}
+            <span class="user-role-pill">{{ group.name }}</span>
+        {% empty %}
+            <span class="user-muted">Sense rol</span>
+        {% endfor %}
+    </div>
+
+    <div class="user-management-line__cell" data-label="Data de creacio">
+        {{ listed_user.date_joined|localtime|date:"d/m/Y H:i" }}
+    </div>
+
+    <div class="user-management-line__actions">
+        {% if listed_user.pk == user.pk %}
+            <button class="clear-filters-link user-delete-button" type="button" disabled>
+                Eliminar
+            </button>
+        {% else %}
+            <form method="post"
+                  onsubmit="return confirm('Segur que vols eliminar aquest usuari?');">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="user_id" value="{{ listed_user.pk }}">
+                <button class="clear-filters-link user-delete-button" type="submit">
+                    Eliminar
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</article>
