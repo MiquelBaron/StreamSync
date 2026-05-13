@@ -1,5 +1,14 @@
 from django import forms
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 
+from .models import Genre, ContentConsumer, Platform, Incidence
+from .models import AgeRating
+from .roles import ROLE_DEFINITIONS
+
+
+def app_role_groups():
+    return Group.objects.filter(name__in=ROLE_DEFINITIONS.values()).order_by("name")
 from .models import*
 
 class ContentSearchForm(forms.Form):
@@ -55,6 +64,106 @@ class PreferencesForm(forms.ModelForm):
         if genres and genres.count() > 3:
             raise forms.ValidationError("Només pots seleccionar un màxim de 3 gèneres.")
         return genres
+
+
+class IncidenceForm(forms.ModelForm):
+    class Meta:
+        model = Incidence
+        fields = ["name", "description"]
+        labels = {
+            "name": "Titol",
+            "description": "Descripcio",
+        }
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "incidence-modal__input",
+                    "placeholder": "Resumeix la incidencia",
+                }
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "incidence-modal__textarea",
+                    "placeholder": "Explica que ha passat",
+                    "rows": 5,
+                }
+            ),
+        }
+
+
+class UserRoleFilterForm(forms.Form):
+    role = forms.ModelChoiceField(
+        label="Rol",
+        queryset=Group.objects.none(),
+        required=False,
+        empty_label="Tots els rols",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["role"].queryset = app_role_groups()
+
+
+class UserCreateForm(forms.Form):
+    username = forms.CharField(
+        label="Nom d'usuari",
+        max_length=150,
+        required=True,
+    )
+    first_name = forms.CharField(
+        label="Nom",
+        max_length=150,
+        required=False,
+    )
+    last_name = forms.CharField(
+        label="Cognoms",
+        max_length=150,
+        required=False,
+    )
+    email = forms.EmailField(
+        label="Correu electronic",
+        required=False,
+    )
+    password = forms.CharField(
+        label="Contrasenya",
+        widget=forms.PasswordInput,
+        required=True,
+    )
+    role = forms.ModelChoiceField(
+        label="Rol",
+        queryset=Group.objects.none(),
+        required=True,
+        empty_label="Selecciona un rol",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["role"].queryset = app_role_groups()
+
+    def clean_username(self):
+        username = self.cleaned_data["username"].strip()
+        User = get_user_model()
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Ja existeix un usuari amb aquest nom.")
+        return username
+
+    def save(self):
+        User = get_user_model()
+        user = User(
+            username=self.cleaned_data["username"],
+            first_name=self.cleaned_data["first_name"],
+            last_name=self.cleaned_data["last_name"],
+            email=self.cleaned_data["email"],
+            is_active=True,
+            is_staff=False,
+            is_superuser=False,
+        )
+        user.set_password(self.cleaned_data["password"])
+        user.save()
+
+        user.groups.set([self.cleaned_data["role"]])
+
+        return user
 
 
 class PlatformAnalyticsFilterForm(forms.Form):

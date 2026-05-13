@@ -35,6 +35,12 @@
                     Dashboard
                 </a>
             {% endif %}
+
+            {% if user|has_role:"technical_admin" %}
+                <a class="nf-nav__link" href="{% url 'user_management' %}">
+                    Gestionar usuaris
+                </a>
+            {% endif %}
         </nav>
     </div>
     {% if user.is_authenticated %}
@@ -60,6 +66,10 @@
                 </div>
             </div>
 
+            <button class="nf-btn-signout" type="button" onclick="openIncidenceModal()">
+                Reportar incidència
+            </button>
+
             <a class="nf-btn-signout" href="{% url 'logout' %}">
                 Tancar sessió
             </a>
@@ -75,3 +85,101 @@
     {% endif %}
 
 </header>
+
+{% if user.is_authenticated %}
+    {% if messages %}
+    <div class="nf-messages" aria-live="polite">
+        {% for message in messages %}
+            <div class="nf-message nf-message--{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div id="incidence-modal"
+         class="ss-modal incidence-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="incidence-modal-title"
+         onclick="handleIncidenceBackdropClick(event)">
+        <div class="ss-modal__box incidence-modal__box">
+            <button class="ss-modal__close incidence-modal__close"
+                    type="button"
+                    aria-label="Tancar"
+                    onclick="closeIncidenceModal()">
+                x
+            </button>
+
+            <div class="ss-modal__hero incidence-modal__header">
+                <div class="ss-modal__hero-info">
+                <h2 id="incidence-modal-title" class="ss-modal__title">Reportar incidència</h2>
+                <p>Envia una incidencia perque l'equip la pugui revisar.</p>
+                </div>
+            </div>
+
+            <form class="ss-modal__body incidence-modal__form" method="post" action="{% url 'report_incidence' %}">
+                {% csrf_token %}
+
+                <label class="incidence-modal__field" for="incidence-title">
+                    <span>Títol</span>
+                    <input id="incidence-title"
+                           class="incidence-modal__input"
+                           type="text"
+                           name="name"
+                           maxlength="255"
+                           required>
+                </label>
+
+                <label class="incidence-modal__field" for="incidence-description">
+                    <span>Descripció</span>
+                    <textarea id="incidence-description"
+                              class="incidence-modal__textarea"
+                              name="description"
+                              rows="5"
+                              required></textarea>
+                </label>
+
+                <div class="incidence-modal__actions">
+                    <button class="clear-filters-link incidence-modal__cancel" type="button" onclick="closeIncidenceModal()">
+                        Cancel·lar
+                    </button>
+                    <button class="search-submit-btn incidence-modal__submit" type="submit">
+                        Enviar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openIncidenceModal() {
+            const modal = document.getElementById("incidence-modal");
+            if (!modal) return;
+            modal.classList.add("is-open");
+            document.body.style.overflow = "hidden";
+            const titleInput = document.getElementById("incidence-title");
+            if (titleInput) titleInput.focus();
+        }
+
+        function closeIncidenceModal() {
+            const modal = document.getElementById("incidence-modal");
+            if (!modal) return;
+            const wasOpen = modal.classList.contains("is-open");
+            modal.classList.remove("is-open");
+            if (wasOpen) {
+                document.body.style.overflow = "";
+            }
+        }
+
+        function handleIncidenceBackdropClick(event) {
+            if (event.target.id === "incidence-modal") {
+                closeIncidenceModal();
+            }
+        }
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape") {
+                closeIncidenceModal();
+            }
+        });
+    </script>
+{% endif %}

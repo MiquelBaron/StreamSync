@@ -1,0 +1,62 @@
+{% load tz %}
+
+<article class="user-management-line">
+    <div class="user-management-line__cell" data-label="Nom">
+        <strong>
+            {% if listed_user.get_full_name %}
+                {{ listed_user.get_full_name }}
+            {% else %}
+                {{ listed_user.username }}
+            {% endif %}
+        </strong>
+        <small>@{{ listed_user.username }}</small>
+    </div>
+
+    <div class="user-management-line__cell" data-label="Correu electronic">
+        {% if listed_user.email %}
+            {{ listed_user.email }}
+        {% else %}
+            <span class="user-muted">Sense correu</span>
+        {% endif %}
+    </div>
+
+    <div class="user-management-line__cell" data-label="Rol">
+        <form class="user-role-update-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_role">
+            <input type="hidden" name="user_id" value="{{ listed_user.pk }}">
+            <select name="role" aria-label="Rol de {{ listed_user.username }}">
+                {% for role in role_options %}
+                    <option value="{{ role.pk }}" {% if current_role and current_role.pk == role.pk %}selected{% endif %}>
+                        {{ role.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button class="user-role-save" type="submit">
+                Guardar
+            </button>
+        </form>
+    </div>
+
+    <div class="user-management-line__cell" data-label="Data de creacio">
+        {{ listed_user.date_joined|localtime|date:"d/m/Y H:i" }}
+    </div>
+
+    <div class="user-management-line__actions">
+        {% if listed_user.pk == user.pk %}
+            <button class="clear-filters-link user-delete-button" type="button" disabled>
+                Eliminar
+            </button>
+        {% else %}
+            <form method="post"
+                  onsubmit="return confirm('Segur que vols eliminar aquest usuari?');">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="user_id" value="{{ listed_user.pk }}">
+                <button class="clear-filters-link user-delete-button" type="submit">
+                    Eliminar
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</article>

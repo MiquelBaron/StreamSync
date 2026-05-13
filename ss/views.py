@@ -1,8 +1,11 @@
 import csv
 import json
 
+from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import Group
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
@@ -21,6 +24,7 @@ from .roles import (
     ROLE_CONTENT_CONSUMER,
     ROLE_GENERAL_DIRECTOR,
     ROLE_PLATFORM_MANAGER,
+    ROLE_TECHNICAL_ADMIN,
     ensure_role_groups,
     get_role_group,
     user_has_role,
@@ -201,6 +205,127 @@ class RegisterVisualizationView(LoginRequiredMixin, View):
         except ValueError as e:
             return JsonResponse({"ok": False, "error": str(e)}, status=400)
         return JsonResponse({"ok": True})
+
+
+class ReportIncidenceView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
+    def post(self, request, *args, **kwargs):
+        form = IncidenceForm(request.POST)
+        if form.is_valid():
+            incidence = form.save(commit=False)
+            incidence.user = request.user
+            incidence.save()
+            messages.success(request, "La incidencia s'ha enviat correctament.")
+        else:
+            messages.error(request, "Revisa el titol i la descripcio de la incidencia.")
+
+        return redirect(request.META.get("HTTP_REFERER") or "dashboard")
+
+
+class UserManagementView(LoginRequiredMixin, UserPassesTestMixin, View):
+    template_name = "user_management.html"
+    login_url = "/login/"
+    raise_exception = True
+
+    def test_func(self):
+        ensure_role_groups()
+        return user_has_role(self.request.user, ROLE_TECHNICAL_ADMIN)
+
+    def get(self, request, *args, **kwargs):
+        return self._render(request)
+
+    def post(self, request, *args, **kwargs):
+        ensure_role_groups()
+        action = request.POST.get("action")
+
+        if action == "delete":
+            return self._delete_user(request)
+        if action == "update_role":
+            return self._update_user_role(request)
+
+        create_form = UserCreateForm(request.POST)
+        if create_form.is_valid():
+            user = create_form.save()
+            messages.success(request, f"L'usuari '{user.username}' s'ha creat correctament.")
+            return redirect("user_management")
+
+        messages.error(request, "Revisa les dades del formulari de creacio.")
+        return self._render(request, create_form=create_form, show_create_form=True)
+
+    def _delete_user(self, request):
+        User = get_user_model()
+        user_id = request.POST.get("user_id")
+
+        try:
+            user_to_delete = User.objects.get(pk=user_id)
+        except (User.DoesNotExist, ValueError, TypeError):
+            messages.error(request, "No s'ha trobat l'usuari a eliminar.")
+            return redirect("user_management")
+
+        if user_to_delete.pk == request.user.pk:
+            messages.error(request, "No pots eliminar el teu propi usuari.")
+            return redirect("user_management")
+
+        username = user_to_delete.username
+        user_to_delete.delete()
+        messages.success(request, f"L'usuari '{username}' s'ha eliminat correctament.")
+        return redirect("user_management")
+
+    def _update_user_role(self, request):
+        User = get_user_model()
+        user_id = request.POST.get("user_id")
+        role_id = request.POST.get("role")
+
+        try:
+            user_to_update = User.objects.get(pk=user_id)
+            selected_role = app_role_groups().get(pk=role_id)
+        except (User.DoesNotExist, Group.DoesNotExist, ValueError, TypeError):
+            messages.error(request, "No s'ha pogut actualitzar el rol de l'usuari.")
+            return redirect("user_management")
+
+        current_app_roles = app_role_groups()
+        user_to_update.groups.remove(*current_app_roles)
+        user_to_update.groups.add(selected_role)
+        messages.success(
+            request,
+            f"El rol de '{user_to_update.username}' s'ha actualitzat a '{selected_role.name}'.",
+        )
+        return redirect("user_management")
+
+    def _render(self, request, create_form=None, show_create_form=False):
+        ensure_role_groups()
+        User = get_user_model()
+
+        role_options = app_role_groups()
+        role_filter_form = UserRoleFilterForm(request.GET or None)
+        users = User.objects.prefetch_related("groups").order_by("username")
+
+        selected_role = None
+        if role_filter_form.is_valid():
+            selected_role = role_filter_form.cleaned_data.get("role")
+            if selected_role is not None:
+                users = users.filter(groups=selected_role)
+
+        app_role_ids = set(role_options.values_list("pk", flat=True))
+        user_rows = []
+        for listed_user in users:
+            current_role = next(
+                (group for group in listed_user.groups.all() if group.pk in app_role_ids),
+                None,
+            )
+            user_rows.append({"user": listed_user, "current_role": current_role})
+
+        context = {
+            "user_rows": user_rows,
+            "users_count": len(user_rows),
+            "role_options": role_options,
+            "role_filter_form": role_filter_form,
+            "selected_role": selected_role,
+            "create_form": create_form or UserCreateForm(),
+            "show_create_form": show_create_form,
+        }
+        return render(request, self.template_name, context)
 
 
 class PlatformAnalyticsDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
