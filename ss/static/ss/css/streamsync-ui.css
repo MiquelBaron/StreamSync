@@ -138,6 +138,7 @@ body.nf-body {
     align-items: center;
 }
 
+/* Incidences */
 .nf-btn-incidence {
     background: rgba(255, 255, 255, 0.08);
     color: #fff;
@@ -328,6 +329,94 @@ body.nf-body {
 .incidence-modal__submit:hover {
     background: var(--nf-red-hover);
 }
+
+/* Graella principal */
+.ss-incidences-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+/* Targeta d'incidència */
+.ss-incidence-card {
+    background: #181818;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+.ss-incidence-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.ss-incidence-tag {
+    background: #e50914;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 2px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.ss-incidence-date {
+    color: #777;
+    font-size: 0.8rem;
+}
+
+
+.ss-incidence-card__body {
+    margin-bottom: 20px;
+}
+
+.ss-incidence-title {
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.ss-incidence-user {
+    color: #777;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.ss-incidence-user strong {
+    color: #eee;
+}
+
+.ss-incidence-description {
+    color: #ccc;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+/* Footer BEM */
+.ss-incidence-card__footer {
+    border-top: 1px solid #333;
+    padding-top: 15px;
+}
+
+/* Botó de resolució (Search Submit modificat) */
+.ss-btn--resolve {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    width: 100%;
+}
+
+.ss-btn--resolve:hover {
+    background-color: #218838 !important;
+    border-color: #1e7e34 !important;
+}
+
 
 
 /* User management */
@@ -2499,7 +2588,42 @@ body.auth-page {
         padding: 0.08rem 0.3rem;
     }
 }
+.ss-admin-body {
+    background-color: #141414; /* El negre de Netflix */
+    color: white;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin: 0;
+}
+.ss-admin-main {
+    padding-top: 100px;
+    min-height: 100vh;
+    background-color: #141414;
+    display: block;
+}
+.ss-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
 
+.ss-admin-title {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+.ss-empty-msg {
+    color: #777;
+    font-size: 1.1rem;
+    margin-top: 40px;
+}
+
+.ss-incidences-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
 /* —— Reviews —— */
 
 /* Contenidor del formulari */

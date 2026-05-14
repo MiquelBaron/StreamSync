@@ -171,7 +171,13 @@ class Incidence(models.Model):
         (CONTENT, "Content mismatch"),
         (OTHER, "Other"),
     ]
-
+    PENDING = "pending"
+    RESOLVED = "resolved"
+    STATUS_CHOICES = [
+        (PENDING, "Pendent"),
+        (RESOLVED, "Resolta"),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="incidences")
     name = models.CharField(max_length=255)
     description = models.TextField()

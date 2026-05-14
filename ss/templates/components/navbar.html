@@ -40,7 +40,11 @@
                 <a class="nf-nav__link" href="{% url 'user_management' %}">
                     Gestionar usuaris
                 </a>
+                <a class="nf-nav__link" href="{% url 'admin_incidences' %}">
+                    Incidències pendents
+                </a>
             {% endif %}
+
         </nav>
     </div>
     {% if user.is_authenticated %}

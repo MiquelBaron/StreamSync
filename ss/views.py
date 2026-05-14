@@ -238,6 +238,30 @@ class ReportIncidenceView(LoginRequiredMixin, View):
         return redirect(request.META.get("HTTP_REFERER") or "dashboard")
 
 
+class PendingIncidencesView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = "components/admin_incidences.html"
+
+    def test_func(self):
+        return user_has_role(self.request.user, ROLE_TECHNICAL_ADMIN)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Filtrem només les que tenen estat PENDENT
+        context['incidences'] = Incidence.objects.filter(status=Incidence.PENDING).order_by('-created_at')
+        return context
+
+class ResolveIncidenceView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return user_has_role(self.request.user, ROLE_TECHNICAL_ADMIN)
+
+    def post(self, request, pk):
+        incidence = Incidence.objects.get(pk=pk)
+        incidence.status = Incidence.RESOLVED
+        incidence.save()
+        messages.success(request, f"Incidència '{incidence.name}' resolta.")
+        return redirect('admin_incidences')
+
+
 class UserManagementView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "user_management.html"
     login_url = "/login/"
@@ -549,3 +573,6 @@ class ReviewView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         url = reverse('dashboard')
 
         return f"{url}#content-{content_id}"
+
+
+

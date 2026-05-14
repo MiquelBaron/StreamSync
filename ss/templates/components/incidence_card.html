@@ -1,0 +1,24 @@
+    
+<div class="ss-incidence-card" id="incidence-{{ incidence.id }}">
+    <div class="ss-incidence-card__header">
+        <span class="ss-incidence-tag ss-incidence-tag--{{ incidence.incidence_type }}">
+            {{ incidence.get_incidence_type_display }}
+        </span>
+        <span class="ss-incidence-date">{{ incidence.created_at|date:"d/m/Y H:i" }}</span>
+    </div>
+
+    <div class="ss-incidence-card__body">
+        <h3 class="ss-incidence-title">{{ incidence.name }}</h3>
+        <p class="ss-incidence-user">Usuari: <strong>{{ incidence.user.username }}</strong></p>
+        <p class="ss-incidence-description">{{ incidence.description }}</p>
+    </div>
+
+    <div class="ss-incidence-card__footer">
+        <form action="{% url 'resolve_incidence' incidence.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="search-submit-btn ss-btn--resolve">
+                Marcar com a resolta
+            </button>
+        </form>
+    </div>
+</div>
