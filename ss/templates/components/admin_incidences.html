@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'ss/css/streamsync-ui.css' %}">
+    <title>Gestió d'Incidències</title>
+</head>
+<body class="ss-admin-body">
+
+    {% include "components/navbar.html" %}
+
+    <main class="nf-main-container ss-admin-main">
+        <div class="ss-container">
+
+            <h1 class="ss-admin-title">Gestió d'Incidències Pendents</h1>
+
+            <div class="ss-incidences-grid">
+                {% for incidence in incidences %}
+                    {% include "components/incidence_card.html" with incidence=incidence %}
+                {% empty %}
+                    <p class="ss-empty-msg">No hi ha incidències pendents. Bona feina!</p>
+                {% endfor %}
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>
