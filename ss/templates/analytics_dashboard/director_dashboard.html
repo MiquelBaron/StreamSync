@@ -6,7 +6,7 @@
 {% block dashboard_subtitle %}Visio global{% endblock %}
 
 {% block filters %}
-{% include "analytics_dashboard/components/filter_bar.html" with active_filters=active_filters show_platform_filter=True platforms=filter_options.platforms %}
+{% include "analytics_dashboard/components/filter_bar.html" with active_filters=active_filters platforms=filter_options.platforms %}
 {% endblock %}
 
 {% block kpis %}

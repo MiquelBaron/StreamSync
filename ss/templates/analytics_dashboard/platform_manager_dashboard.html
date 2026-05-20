@@ -6,9 +6,11 @@
 {% block dashboard_subtitle %}Dades filtrades exclusivament per la plataforma assignada al teu usuari.{% endblock %}
 
 {% block filters %}
-{% include "analytics_dashboard/components/filter_bar.html" with active_filters=active_filters show_platform_filter=True allow_all_platforms=False platforms=filter_options.platforms %}
-<div class="analytics-export-group">
-    <a class="analytics-export" href="{% url 'platform_analytics_pdf' %}{% if export_querystring %}?{{ export_querystring }}{% endif %}">Exportar PDF</a>
+{% include "analytics_dashboard/components/filter_bar.html" with active_filters=active_filters platforms=filter_options.platforms %}
+{% endblock %}
+
+{% block actions %}
+<div class="ad-export-bar">
     <a class="analytics-export analytics-export--secondary" href="{% url 'platform_analytics_csv' %}{% if export_querystring %}?{{ export_querystring }}{% endif %}">Exportar CSV</a>
 </div>
 {% endblock %}

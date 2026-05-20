@@ -25,7 +25,7 @@
                 <a class="nf-nav__link" href="{% url 'platform_analytics_dashboard' %}">
                     Analitica
                 </a>
-                <a class="nf-nav__link" href="{% url 'platform_analytics_pdf' %}">
+                <a class="nf-nav__link" href="{% url 'platform_analytics_pdf' %}{% if export_querystring %}?{{ export_querystring }}{% endif %}">
                     Exportar PDF
                 </a>
             {% endif %}

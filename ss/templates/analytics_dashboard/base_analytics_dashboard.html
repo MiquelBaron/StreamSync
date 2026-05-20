@@ -23,7 +23,7 @@
                     <p class="ad-hero__subtitle">{% block dashboard_subtitle %}{% endblock %}</p>
                 </div>
             </div>
-            <div>
+            <div class="ad-hero__toolbar">
                 {% block filters %}{% endblock %}
             </div>
         </div>
@@ -31,6 +31,8 @@
 
     <div class="ad-page">
         <main class="ad-main">
+
+            {% block actions %}{% endblock %}
 
             <div class="ad-kpi-row">
                 {% block kpis %}{% endblock %}

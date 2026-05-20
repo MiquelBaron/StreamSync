@@ -1,3 +1,4 @@
+{% load role_tags %}
 <form method="get" class="ad-filters">
 
     {# Filtre temporal #}
@@ -21,8 +22,8 @@
         </select>
     </div>
 
-    {# Filtre per plataforma - nomes pel Director General #}
-    {% if show_platform_filter %}
+    {# Filtre per plataforma: només Director general (no Gestor de plataformes) #}
+    {% if user|has_role:"general_director" %}
     <div class="filter-card">
         <label for="filter-platform">Plataforma</label>
         <select id="filter-platform" name="platform_id" onchange="this.form.submit()">
